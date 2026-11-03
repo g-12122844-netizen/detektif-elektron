@@ -1,0 +1,1547 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Detektif Elektron</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bangers&display=swap">
+<style>
+/* Layout: buku komik satu lajur. Setiap peringkat = satu panel bergaris tebal dengan kotak kapsyen kuning dan bayang tebal. Biru = elektron (−), merah = proton (+), kuning = tenaga/XP. */
+:root{
+  --paper:#CFEAFF; --dots:#B4DCFB; --card:#FFFFFF; --ink:#1A1A2E; --muted:#4A5068; --line:#1A1A2E; --soft:#EEF6FF; --shadow:#1A1A2E;
+  --neg:#1F63F2; --pos:#EE3344; --spark:#FFD23F; --spark-soft:#FFF3C4; --on-spark:#1A1A2E; --pink:#FF6FAE;
+  --ok:#139E5B; --ok-soft:#DDF7E8; --bad:#F06A12; --bad-soft:#FFE9DA; --btn:#FFD23F; --btn-ink:#1A1A2E; --ghost:#FFFFFF; --grass:#BDE8A4; --grass2:#9ED788; --road:#8A93A6; --plaza:#FFF3C4;
+  --f-display:"Bangers","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#12163A; --dots:#1D2457; --card:#1E2452; --ink:#F4F2FF; --muted:#B9BCE0; --line:#F4F2FF; --soft:#2A3170; --shadow:#05061A;
+  --neg:#6FA0FF; --pos:#FF6B78; --spark:#FFD23F; --spark-soft:#3D3618; --on-spark:#1A1A2E; --pink:#FF8EC2;
+  --ok:#4FD88F; --ok-soft:#173B2C; --bad:#FFA05C; --bad-soft:#43291A; --btn:#FFD23F; --btn-ink:#1A1A2E; --ghost:#1E2452; --grass:#1E4A3A; --grass2:#173B2E; --road:#5A6280; --plaza:#3D3618; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#12163A; --dots:#1D2457; --card:#1E2452; --ink:#F4F2FF; --muted:#B9BCE0; --line:#F4F2FF; --soft:#2A3170; --shadow:#05061A;
+  --neg:#6FA0FF; --pos:#FF6B78; --spark:#FFD23F; --spark-soft:#3D3618; --on-spark:#1A1A2E; --pink:#FF8EC2;
+  --ok:#4FD88F; --ok-soft:#173B2C; --bad:#FFA05C; --bad-soft:#43291A; --btn:#FFD23F; --btn-ink:#1A1A2E; --ghost:#1E2452; --grass:#1E4A3A; --grass2:#173B2E; --road:#5A6280; --plaza:#3D3618; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background-color:var(--paper);background-image:radial-gradient(var(--dots) 2px,transparent 2.5px);background-size:16px 16px;color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55}
+.wrap{max-width:720px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.05;letter-spacing:.03em;text-wrap:balance;margin:0}
+h1{font-size:2.7rem}
+h2{font-size:1.9rem}
+h3{font-size:1.35rem}
+p{margin:0}
+.mono{font-family:var(--f-body);font-weight:700;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{width:64px;height:64px;flex:none}
+.brand .mono{color:var(--ink)}
+.brand h1{color:var(--ink);text-shadow:3px 3px 0 var(--spark)}
+.brand h1 .e{color:var(--neg)}
+.xp{display:flex;align-items:center;gap:8px;background:var(--spark);color:var(--on-spark);border:3px solid var(--line);box-shadow:3px 3px 0 var(--shadow);border-radius:999px;padding:4px 14px;font-family:var(--f-display);font-size:1.3rem;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+
+nav.stages{overflow-x:auto;scrollbar-width:thin;margin:0 -4px}
+nav.stages ol{list-style:none;margin:0;padding:4px 8px 8px 4px;display:flex;gap:8px;min-width:max-content}
+nav.stages button{font-family:var(--f-display);font-size:1rem;letter-spacing:.05em;border:2.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:4px 10px;cursor:pointer;display:flex;gap:6px;align-items:center;box-shadow:2px 2px 0 var(--shadow)}
+nav.stages button[disabled]{cursor:not-allowed;opacity:.45;box-shadow:none}
+nav.stages button.now{background:var(--spark);color:var(--on-spark);transform:translateY(-2px);box-shadow:3px 4px 0 var(--shadow)}
+nav.stages button.fin{background:var(--ok-soft)}
+nav.stages button.fin .n::after{content:" ✓"}
+
+.card{background:var(--card);border:3px solid var(--line);border-radius:6px;box-shadow:6px 6px 0 var(--shadow);padding:24px 20px 20px;display:flex;flex-direction:column;gap:16px;min-width:0;position:relative}
+.card-head{display:flex;flex-direction:column;gap:8px}
+.card-head > .mono:first-child{align-self:flex-start;background:var(--spark);color:var(--on-spark);border:2.5px solid var(--line);padding:3px 10px;margin:-38px 0 4px -6px;transform:rotate(-1.5deg);font-size:.78rem}
+.block{display:flex;flex-direction:column;gap:10px;min-width:0}
+.sub{border-top:3px dotted var(--line);padding-top:16px}
+
+label.field{display:flex;flex-direction:column;gap:6px;font-weight:700}
+input[type=text],textarea,select{font:inherit;font-weight:400;color:var(--ink);background:var(--soft);border:2.5px solid var(--line);border-radius:8px;padding:10px 12px;width:100%}
+textarea{min-height:84px;resize:vertical}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row > *{flex:1 1 200px;min-width:0}
+
+.btn{font-family:var(--f-display);font-size:1.25rem;letter-spacing:.05em;border:3px solid var(--line);border-radius:10px;padding:8px 18px;cursor:pointer;background:var(--btn);color:var(--btn-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;box-shadow:4px 4px 0 var(--shadow);transition:transform .08s,box-shadow .08s}
+.btn:active:not([disabled]){transform:translate(3px,3px);box-shadow:1px 1px 0 var(--shadow)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:var(--ghost);color:var(--ink)}
+.btn.spark{background:var(--pink);color:#1A1A2E}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btns.center{justify-content:center}
+.btn.cta{width:100%;font-size:1.6rem;padding:14px 18px;background:var(--pink);color:#1A1A2E;box-shadow:6px 6px 0 var(--shadow);animation:nudge 2.4s ease-in-out infinite}
+.btn.cta:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--shadow);animation:none}
+@keyframes nudge{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(-1.5deg) scale(1.02)}90%{transform:rotate(1.5deg) scale(1.02)}95%{transform:rotate(-1deg)}}
+.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;padding-top:4px}
+
+.kk{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.kk li{display:flex;gap:10px;align-items:flex-start}
+.kk li::before{content:"★";flex:none;color:var(--spark);-webkit-text-stroke:1px var(--line);font-size:1.15rem;line-height:1.4}
+.q-topik{background:var(--spark-soft);border:2.5px solid var(--line);border-radius:8px;padding:10px 14px;font-weight:700;font-size:1.05rem}
+
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:2.5px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--card)}
+.opt input{margin-top:5px;accent-color:var(--neg);width:18px;height:18px;flex:none}
+.opt:has(input:checked){background:var(--soft);box-shadow:3px 3px 0 var(--neg)}
+.opt.right,.opt.right:has(input:checked){background:var(--ok-soft);box-shadow:3px 3px 0 var(--ok)}
+.opt.wrong,.opt.wrong:has(input:checked){background:var(--bad-soft);box-shadow:3px 3px 0 var(--bad)}
+.q{display:flex;flex-direction:column;gap:10px}
+.q + .q{border-top:3px dotted var(--line);padding-top:14px}
+.qn{font-family:var(--f-display);font-size:1.1rem;letter-spacing:.05em;color:var(--neg)}
+
+.fb{position:relative;border:3px solid var(--line);border-radius:18px;padding:12px 16px 12px 64px;display:flex;flex-direction:column;gap:4px;background:var(--card);margin-top:6px}
+.fb::before{content:"";position:absolute;left:10px;top:10px;width:44px;height:44px;background:var(--mascot) center/contain no-repeat}
+.fb.ok{background:var(--ok-soft)} .fb.bad{background:var(--bad-soft)} .fb.info{background:var(--soft)}
+.fb > b{font-family:var(--f-display);font-weight:400;font-size:1.3rem;letter-spacing:.04em}
+.fb.ok > b{color:var(--ok)} .fb.bad > b{color:var(--bad)}
+
+.sim{background:var(--soft);border:3px solid var(--line);border-radius:8px;overflow:hidden}
+.sim svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.95rem;font-weight:700}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.dot{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font-size:14px;font-weight:700;color:#fff;line-height:1;border:2px solid var(--line)}
+.dot.n{background:var(--neg)} .dot.p{background:var(--pos)}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat div{background:var(--card);border:2.5px solid var(--line);border-radius:8px;padding:8px 12px;font-variant-numeric:tabular-nums}
+.stat b{display:block;font-family:var(--f-display);font-weight:400;font-size:1.6rem;letter-spacing:.04em}
+.toggle{display:flex;align-items:center;gap:10px;font-weight:700;cursor:pointer}
+.toggle input{width:22px;height:22px;accent-color:var(--neg)}
+
+.cases{display:grid;gap:14px}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.scn{border:3px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0;background:var(--card);box-shadow:4px 4px 0 var(--shadow)}
+.scn svg{width:100%;height:auto;display:block}
+.scn .mv{transition:transform .9s cubic-bezier(.3,1.6,.4,1)}
+.chip-row{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:inherit;font-weight:700;border:2.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 14px;cursor:pointer}
+.chip.on{background:var(--spark);color:var(--on-spark)}
+
+.phet-frame{border:3px solid var(--line);border-radius:8px;overflow:hidden;aspect-ratio:4/3;max-width:100%;box-shadow:5px 5px 0 var(--shadow)}
+.phet-frame iframe{width:100%;height:100%;border:0;display:block}
+.cmp{border:2.5px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.cmp-k{font-family:var(--f-display);font-size:1.2rem;letter-spacing:.04em;color:var(--neg);padding:8px 12px;border-bottom:2.5px solid var(--line);background:var(--soft)}
+.cmp-row{padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.cmp-row + .cmp-row{border-top:2px dotted var(--line)}
+.cmp-row.ok{background:var(--ok-soft)} .cmp-row.no{background:var(--bad-soft)}
+.cmp-q{font-size:.9rem;color:var(--muted)}
+.cmp-fix{font-size:.92rem;font-weight:700;color:var(--ok)}
+.cmp-total{font-family:var(--f-display);font-size:1.4rem;letter-spacing:.04em;text-align:center}
+.rules{background:var(--spark);color:#1A1A2E;border:3px solid var(--line);border-radius:8px;box-shadow:5px 5px 0 var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.rules h3{color:#1A1A2E}
+.rules ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.rules li{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:start;background:#FFFFFF;border:2.5px solid #1A1A2E;border-radius:8px;padding:10px 12px}
+.rules li svg{width:48px;height:48px}
+.rules li b{font-size:1.05rem}
+.rules li p{color:#3A4060}
+.rules-proof{font-weight:700;color:var(--ok);background:var(--ok-soft);border:2.5px solid var(--ok);border-radius:8px;padding:8px 12px}
+.yt{max-width:320px;width:100%;margin:0 auto;aspect-ratio:9/16;border:3px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:5px 5px 0 var(--shadow);background:#000}
+.yt iframe{width:100%;height:100%;border:0;display:block}
+.board{background:#1E2A4A;border:3px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:12px;box-shadow:5px 5px 0 var(--shadow)}
+.board h3{color:#FFD23F}
+.board-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bf{position:relative;background:#F4D58D;color:#1A1A2E;border:3px solid #1A1A2E;border-radius:4px 12px 6px 6px;padding:12px;display:flex;flex-direction:column;gap:4px;transform:rotate(-.6deg)}
+.bf:nth-child(3){transform:rotate(.8deg)}
+.bf .mono{color:#4A4030}
+.bf > b{font-family:var(--f-display);font-weight:400;font-size:1.35rem;letter-spacing:.03em;line-height:1.05}
+.bf p{font-size:.92rem}
+.bf.main{grid-column:1/-1;background:#FFF3CC;border-color:#EE3344;box-shadow:4px 4px 0 #EE3344;transform:rotate(-.4deg);padding-top:16px}
+.bf.main > b{font-size:1.7rem;color:#C81E2E}
+.bf.main .mono{padding-right:96px}
+.sulit{position:absolute;right:12px;top:10px;font-family:var(--f-display);font-size:1.3rem;letter-spacing:.12em;color:#EE3344;border:3px solid #EE3344;border-radius:4px;padding:0 8px;transform:rotate(8deg);background:#FFF3CC}
+@media (max-width:440px){ .board-grid{grid-template-columns:1fr} }
+.rules li.cd-li{display:block;padding:10px 8px}
+.charge-diagram{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cm{margin:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
+.cm svg{width:100%;max-width:92px;height:auto}
+.cm figcaption{display:flex;flex-direction:column;font-size:.78rem;line-height:1.25;color:#3A4060}
+.cm figcaption b{font-family:var(--f-display);font-weight:400;font-size:1.1rem;letter-spacing:.05em}
+.count-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch}
+.sim .count-row{padding:0 14px 14px}
+.cnt{border:3px solid var(--line);border-radius:10px;padding:8px 12px;text-align:center;box-shadow:4px 4px 0 var(--shadow);display:flex;flex-direction:column;justify-content:center}
+.cnt span{font-weight:700;font-size:1rem;text-transform:uppercase;letter-spacing:.06em}
+.cnt b{font-family:var(--f-display);font-weight:400;font-size:2.8rem;line-height:1}
+.cnt.p{background:#FFE3E6;border-color:#EE3344}
+.cnt.p span,.cnt.p b{color:#C81E2E}
+.cnt.n{background:#E3ECFF;border-color:#1F63F2}
+.cnt.n span,.cnt.n b{color:#1B4FC4}
+.cnt.vs{border:0;box-shadow:none;font-family:var(--f-display);font-size:2.2rem;color:var(--muted);padding:0 2px}
+.cmc{display:flex;flex-direction:column;gap:1px;margin:2px 0}
+.cmc i{font-style:normal;font-weight:700;font-size:.82rem}
+.cmc .pp{color:#C81E2E} .cmc .nn{color:#1B4FC4}
+.locked-panel{background:var(--soft)}
+.lock-msg{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:start}
+.kod-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.kod-row .field{flex:1 1 180px}
+.kod-row input{text-transform:uppercase;letter-spacing:.1em}
+.reveal{border:3px solid var(--line);border-radius:8px;padding:14px;background:var(--spark-soft);box-shadow:5px 5px 0 var(--shadow)}
+.reveal .cc-cell{cursor:default}
+.cc-name small{font-family:var(--f-body);font-size:.75rem;letter-spacing:0}
+.bridge{background:var(--card);border:2.5px solid var(--line);border-left:8px solid var(--neg);border-radius:8px;padding:8px 12px;font-size:.95rem}
+.rules-mini{background:var(--spark);color:#1A1A2E;border:3px solid var(--line);border-radius:8px;padding:10px 14px;box-shadow:4px 4px 0 var(--shadow)}
+.seg-next{width:100%;margin-top:10px}
+.toolbar #stagebar{display:flex;gap:8px;align-items:center}
+.tb{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.04em;border:2.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:5px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--shadow);white-space:nowrap}
+.tb.on{background:var(--spark);color:var(--on-spark)} .tb[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+.tb-loc{flex:1;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-rule{font-weight:700;border:2.5px solid var(--line);border-radius:10px;padding:4px 10px;background:var(--spark-soft);white-space:nowrap}
+.map{position:relative;width:100%;max-width:440px;margin:0 auto;aspect-ratio:300/700;border:3px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:4px 4px 0 var(--shadow);background:var(--grass)}
+.map > svg{position:absolute;inset:0;width:100%;height:100%}
+.node{position:absolute;transform:translate(-50%,-32px);display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:0;cursor:pointer;width:98px;color:var(--ink);font:inherit}
+.node .ic{position:relative;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:27px;line-height:1;background:var(--card);border:3px solid var(--line);box-shadow:3px 3px 0 var(--shadow)}
+.node .nm{font-weight:700;font-size:.74rem;line-height:1.15;text-align:center;background:var(--card);border:2px solid var(--line);border-radius:6px;padding:2px 5px}
+.node .nm i{display:block;font-style:normal;font-family:var(--f-display);letter-spacing:.06em;color:var(--pink);font-size:.8rem}
+.node.locked{cursor:not-allowed} .node.locked .ic{filter:grayscale(1);opacity:.6} .node.locked .nm{opacity:.7}
+.node .badge-s{position:absolute;right:-8px;top:-6px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;border:2px solid var(--line);background:var(--card)}
+.node.done .ic{background:var(--ok-soft)} .node.done .badge-s{background:var(--ok);color:#fff;font-weight:700}
+.node.now .ic{background:var(--spark);animation:glow 1.3s ease-in-out infinite}
+.node.now .nm{background:var(--spark);color:var(--on-spark)}
+.node.stamp-new .ic{animation:pop .6s cubic-bezier(.3,1.6,.4,1)}
+.node:focus-visible .ic{outline:3px solid var(--neg);outline-offset:3px}
+@keyframes glow{0%,100%{box-shadow:3px 3px 0 var(--shadow),0 0 0 0 rgba(255,210,63,.9)}50%{box-shadow:3px 3px 0 var(--shadow),0 0 0 12px rgba(255,210,63,0)}}
+.map-next{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--spark-soft);border:2.5px solid var(--line);border-radius:8px;padding:10px 12px}
+.map-key{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:.85rem;color:var(--muted)}
+.hint{display:flex;flex-direction:column;gap:6px}
+.hint-btn{align-self:flex-start;font-size:.95rem;padding:6px 12px}
+.hint-p{margin:0;background:var(--spark-soft);border:2px dashed var(--line);border-radius:8px;padding:8px 12px;font-size:.95rem}
+@media (prefers-reduced-motion: reduce){ .node.now .ic,.node.stamp-new .ic{animation:none} }
+.step-box{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:start;background:var(--card);border:2.5px solid var(--line);border-radius:8px;padding:10px 12px}
+.step-no{width:36px;height:36px;border-radius:50%;background:var(--spark);color:#1A1A2E;border:2.5px solid var(--line);display:grid;place-items:center;font-family:var(--f-display);font-size:1.4rem}
+.step-box b{font-family:var(--f-display);font-weight:400;font-size:1.35rem;letter-spacing:.04em}
+.lock-step{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:center;background:var(--soft);border:2.5px dashed var(--line);border-radius:8px;padding:14px 12px;color:var(--muted)}
+.tracker{display:flex;flex-direction:column;gap:8px;background:#1E2A4A;border:3px solid var(--line);border-radius:8px;padding:12px;box-shadow:5px 5px 0 var(--shadow)}
+.tracker > .mono{color:#FFD23F}
+.slot{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center;background:#D9DDE6;color:#1A1A2E;border:2.5px solid #1A1A2E;border-radius:8px;padding:8px 10px}
+.slot.open{background:#FFD23F}
+.slot-ic{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;font-weight:700}
+.slot.open .slot-ic{background:#139E5B;color:#fff}
+.slot b{display:block;font-size:.98rem}
+.slot span:not(.slot-ic){font-size:.85rem;color:#3A4060}
+.rules.discover h3{font-size:1.5rem}
+.tanya{display:flex;flex-direction:column;gap:8px;background:var(--spark-soft);border:2.5px solid var(--line);border-radius:8px;padding:10px 12px}
+.found{display:flex;gap:8px;flex-wrap:wrap;font-size:.9rem;color:var(--muted)}
+.found span.on{color:var(--ok);font-weight:700}
+.q-besar{background:var(--card);border:3px solid var(--neg);border-radius:8px;padding:10px 14px;font-weight:700;font-size:1.05rem;box-shadow:3px 3px 0 var(--neg)}
+.answer-big{background:var(--ok-soft);border:2.5px solid var(--ok);border-radius:8px;padding:10px 14px}
+.answer-big b{color:var(--ok)}
+.clues{display:flex;flex-direction:column;gap:6px}
+.clue-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.clue{border:2.5px solid var(--line);border-radius:8px;padding:10px 12px}
+.clue.help{background:var(--ok-soft)} .clue.harm{background:var(--bad-soft)}
+.clue b{font-family:var(--f-display);font-weight:400;font-size:1.3rem;letter-spacing:.04em}
+.clue ul{margin:4px 0 0;padding-left:18px;font-size:.92rem;display:flex;flex-direction:column;gap:2px}
+.big-cta{width:100%;font-size:1.6rem;padding:12px 18px}
+.registered{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;background:var(--soft);border:2.5px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.92rem}
+.linkbtn{font:inherit;font-weight:700;background:none;border:0;color:var(--neg);text-decoration:underline;cursor:pointer;padding:4px}
+.congrats{font-family:var(--f-display);font-size:1.5rem;letter-spacing:.04em;color:var(--neg)}
+.teaser{background:var(--card);border:2.5px dashed var(--line);border-radius:8px;padding:10px 12px;font-size:.95rem}
+.case-file{background:#F4D58D;color:#1A1A2E;border:3px solid var(--line);border-radius:4px 14px 8px 8px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:4px 4px 0 var(--shadow)}
+.case-file .mono{color:#1A1A2E}
+.case-file .muted{color:#4A4030}
+.case-file .btn{align-self:flex-start;font-size:1.1rem;padding:6px 14px;min-height:0}
+.evid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.evid div{border:2.5px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--card);display:flex;flex-direction:column;gap:4px}
+.evid .mono{color:var(--neg)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.sp{margin:0;border:3px solid var(--line);border-radius:6px;overflow:hidden;background:var(--card);box-shadow:4px 4px 0 var(--shadow);display:flex;flex-direction:column}
+.sp svg{display:block;width:100%;height:auto;border-bottom:3px solid var(--line)}
+.sp figcaption{padding:8px 10px;display:flex;flex-direction:column;gap:2px;font-size:.92rem}
+.nota{background:var(--card);border:3px solid var(--line);border-radius:8px;box-shadow:5px 5px 0 var(--neg);padding:14px 16px;display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.nota h3{color:var(--neg)}
+.nota-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.nota-grid div{border:2.5px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--soft);display:flex;flex-direction:column;gap:2px}
+.nota-grid b{font-family:var(--f-display);font-weight:400;font-size:1.35rem;letter-spacing:.04em}
+.nota-grid div:nth-child(1){background:var(--spark-soft)} .nota-grid div:nth-child(2){background:var(--bad-soft)} .nota-grid div:nth-child(3){background:var(--ok-soft)}
+.misi{background:var(--spark-soft);border:2.5px dashed var(--line);border-radius:8px;padding:10px 14px}
+.misi-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.misi-head .mono{color:var(--ink)}
+.misi-count{font-family:var(--f-display);font-size:1.3rem;letter-spacing:.04em;color:var(--neg)}
+.misi em.bonus{font-style:normal;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border:1.5px solid var(--muted);color:var(--muted);border-radius:999px;padding:0 6px;margin-left:4px}
+.misi-ok{font-weight:700;color:var(--ok)}
+.kbtns{display:grid;gap:12px}
+.kbtn{font:inherit;display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:3px solid var(--line);border-radius:12px;padding:12px 16px;cursor:pointer;box-shadow:5px 5px 0 var(--shadow);transition:transform .08s,box-shadow .08s}
+.kbtn svg{flex:none}
+.kbtn > span:first-of-type{display:flex;flex-direction:column;gap:2px;min-width:0}
+.kbtn b{font-family:var(--f-display);font-weight:400;font-size:1.45rem;letter-spacing:.04em;line-height:1.1}
+.kbtn small{font-size:.85rem;font-weight:700;opacity:.85}
+.kbtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--shadow)}
+.kbtn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--shadow)}
+.kbtn.cas{background:#1F63F2;color:#fff}
+.kbtn.rod{background:var(--card);color:var(--ink)}
+.kbtn.rod.on{background:var(--ok-soft)}
+.kbtn .sw{margin-left:auto;flex:none;width:56px;height:30px;border:3px solid var(--line);border-radius:999px;background:var(--soft);position:relative}
+.kbtn .sw i{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:transform .15s}
+.kbtn.rod.on .sw{background:var(--ok)}
+.kbtn.rod.on .sw i{transform:translateX(26px);background:#fff}
+.checks{display:flex;flex-direction:column;gap:6px}
+.checks ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.checks li{display:flex;align-items:center;gap:10px;color:var(--muted)}
+.checks li::before{content:"";flex:none;width:20px;height:20px;background:radial-gradient(circle,var(--muted) 0 3.5px,transparent 4px)}
+.checks li.done{color:var(--ink);font-weight:700}
+.checks li.done::before{content:"✓";display:grid;place-items:center;background:var(--ok);border-radius:50%;color:#fff;font-size:13px;font-weight:700}
+.chain-pool,.chain-built{display:flex;flex-direction:column;gap:8px}
+.chain-item{font:inherit;text-align:left;border:2.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px 12px;cursor:pointer;box-shadow:3px 3px 0 var(--shadow)}
+.chain-item[disabled]{opacity:.35;cursor:default;box-shadow:none}
+.chain-built{list-style:none;margin:0;padding:0;counter-reset:c}
+.chain-built li{counter-increment:c;display:flex;gap:10px;border:2.5px solid var(--line);background:var(--soft);border-radius:10px;padding:10px 12px}
+.chain-built li::before{content:counter(c);font-family:var(--f-display);font-size:1.3rem;color:var(--neg)}
+.cc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.cc-cell{display:flex;flex-direction:column;align-items:center;gap:6px;border:3px solid var(--line);border-radius:8px;padding:10px;background:var(--card);cursor:pointer;box-shadow:3px 3px 0 var(--shadow)}
+.cc-cell svg{width:84px;height:auto}
+.cc-say{position:relative;align-self:stretch;background:var(--soft);border:2.5px solid var(--line);border-radius:14px;padding:8px 10px;font-size:.92rem;font-weight:700;margin-bottom:8px}
+.cc-say::after{content:"";position:absolute;left:50%;bottom:-10px;width:14px;height:14px;background:var(--soft);border-right:2.5px solid var(--line);border-bottom:2.5px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+.cc-name{font-family:var(--f-display);font-size:1.25rem;letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.cc-name input{width:18px;height:18px;accent-color:var(--neg)}
+.cc-cell:has(input:checked){box-shadow:4px 4px 0 var(--neg)}
+.cc-cell.right{background:var(--ok-soft)} .cc-cell.wrong{background:var(--bad-soft)}
+.starter{background:var(--spark-soft);border:2.5px dashed var(--line);border-radius:10px;padding:12px 14px}
+
+.hero{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:end}
+.hero svg.mascot{width:120px;height:auto}
+.bubble{position:relative;background:var(--card);border:3px solid var(--line);border-radius:22px;padding:12px 16px;font-weight:700;font-size:1.05rem;margin-bottom:34px}
+.bubble::after{content:"";position:absolute;left:-14px;bottom:14px;width:22px;height:22px;background:var(--card);border-left:3px solid var(--line);border-bottom:3px solid var(--line);transform:rotate(45deg) skew(10deg,10deg)}
+.burst{position:absolute;right:-10px;top:-24px;width:96px;height:96px;transform:rotate(10deg);pointer-events:none}
+.vcard{display:flex;flex-direction:column;border:3px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:6px 6px 0 var(--shadow);text-decoration:none;color:#1A1A2E;background:var(--card);transition:transform .1s,box-shadow .1s}
+.vcard-art svg{display:block;width:100%;height:auto}
+.vcard-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--pink);border-top:3px solid var(--line);padding:10px 16px;font-family:var(--f-display);font-size:1.6rem;letter-spacing:.05em;color:#1A1A2E}
+a.vcard:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--shadow)}
+a.vcard:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--shadow)}
+a.vcard .play{transform-box:fill-box;transform-origin:center;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.vcard.off .vcard-bar{background:var(--soft);color:var(--ink);font-size:1.2rem}
+.vcard.off .play{opacity:.5}
+.video-panel{background:var(--spark-soft);border:3px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px}
+
+.badge{border:3px solid var(--line);border-radius:8px;padding:18px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--spark-soft);box-shadow:5px 5px 0 var(--shadow)}
+.badge svg{width:96px;height:auto}
+.badge dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-variant-numeric:tabular-nums}
+.badge dt{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);align-self:center}
+.badge dd{margin:0;font-weight:700}
+.badge dd.tahap{font-family:var(--f-display);font-size:1.5rem;letter-spacing:.04em;color:var(--neg)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{border-bottom:2px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+th{font-family:var(--f-display);font-weight:400;font-size:1.05rem;letter-spacing:.05em;color:var(--neg)}
+.y{color:var(--ok);font-weight:700}.x{color:var(--bad);font-weight:700}
+
+details.guru{background:var(--card);border:2.5px dashed var(--line);border-radius:8px;padding:12px 16px;font-size:.92rem}
+details.guru summary{cursor:pointer;font-weight:700}
+details.guru div{display:flex;flex-direction:column;gap:8px;margin-top:10px;color:var(--muted)}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;background:var(--soft);padding:1px 5px;border-radius:5px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px) rotate(-2deg);background:var(--spark);color:var(--on-spark);border:3px solid #1A1A2E;box-shadow:4px 4px 0 #1A1A2E;padding:6px 16px;border-radius:12px;font-family:var(--f-display);font-size:1.3rem;letter-spacing:.04em;opacity:0;transition:.25s;pointer-events:none;z-index:20;width:max-content;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0) rotate(-2deg)}
+.wiggle{animation:wig .35s ease}
+@keyframes wig{0%,100%{transform:translateX(0)}30%{transform:translateX(-6px)}70%{transform:translateX(6px)}}
+.flash{animation:fl .6s ease}
+@keyframes fl{0%{opacity:1}20%{opacity:.25}40%{opacity:1}60%{opacity:.4}100%{opacity:1}}
+.pop{animation:pop .5s cubic-bezier(.3,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.6) rotate(-6deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+@media (prefers-reduced-motion: reduce){ .scn .mv{transition:none} .wiggle,.flash,.pop,.btn.cta,a.vcard .play{animation:none} .vcard,.kbtn,.kbtn .sw i{transition:none} .toast,.btn{transition:none} }
+@media (max-width:440px){ h1{font-size:2.2rem} h2{font-size:1.6rem} .card{padding:24px 14px 16px} .badge{grid-template-columns:1fr} .hero svg.mascot{width:92px} .burst{width:74px;height:74px;right:-6px} }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span id="logo" aria-hidden="true"></span>
+      <div><span class="mono">Fail Kes 7.1 · Sains Tingkatan 2</span>
+      <h1>Detektif <span class="e">Elektron</span></h1></div>
+    </div>
+    <div class="xp" aria-live="polite" title="Mata pengalaman (XP)">
+      <svg width="16" height="20" viewBox="0 0 16 20" aria-hidden="true"><path d="M9 0L0 12h6l-2 8 10-12H8z" fill="var(--spark)"/></svg>
+      <span id="xp">0</span> XP
+    </div>
+  </header>
+
+  <nav class="toolbar" aria-label="Navigasi"><div id="stagebar"></div></nav>
+
+  <main id="stage"></main>
+
+  <details class="guru">
+    <summary>Nota guru</summary>
+    <div>
+      <p>Hub ini direka untuk SP 7.1.2 dan 7.1.3, sesi ±80 minit, murid bekerja berpasangan pada satu peranti. Tiada log masuk. Murid memasukkan nama penuh ahli pasangan dan kelas untuk sijil. Data hanya disimpan dalam pelayar peranti murid dan dihantar kepada guru melalui Google Form. Di Padlet, murid menulis nama pertama sahaja.</p>
+      <p>Murid bergerak melalui peta <b>Bandar Elektron</b>. Laluan utama dibuka ikut urutan; Muzium Sains, Stesen Minyak dan Padang Kilat boleh dibuat ikut urutan pilihan murid (choice board). Depoh Lori Minyak ialah cabaran pengayaan pilihan. Butang petunjuk berperingkat tersedia pada soalan utama. Cadangan: padankan pasangan berdasarkan skor ujian pra (kuat dengan sederhana). Bunyi boleh dimatikan dengan butang 🔊.</p>
+      <p>Jawapan kartun konsep di Muzium Sains dikunci sehingga perbincangan kelas. Selepas berbincang, sebut kod kepada murid. Kod ditetapkan dalam pemboleh ubah <code>KOD_GURU</code> di bahagian atas skrip.</p>
+      <p>Untuk menerima keputusan dalam Google Sheets: bina Google Form dengan medan Nama ahli 1, Nama ahli 2, Kelas, Skor pra, Skor pasca dan XP. Pangkat untuk sijil datang daripada Kuiz Cabaran. Ambil pautan "pre-filled", kemudian isi pemboleh ubah <code>FORM</code> di bahagian atas skrip dalam fail ini.</p>
+      <p>Kemajuan disimpan dalam pelayar peranti ini sahaja. <button class="btn ghost" id="reset" type="button">Mula semula dari awal</button></p>
+    </div>
+  </details>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ====== TETAPAN GURU ======
+   Isi url dengan pautan Google Form (bahagian sebelum ?usp=pp_url) dan id entry setiap medan.
+   Contoh url: 'https://docs.google.com/forms/d/e/XXXX/viewform'  */
+const FORM = {
+  url: '',
+  entry: { nama: 'entry.1111111111', nama2: 'entry.7777777777', kelas: 'entry.2222222222', pra: 'entry.3333333333', pasca: 'entry.4444444444', xp: 'entry.5555555555', tahap: 'entry.6666666666' }
+};
+
+/* Video pembuka (Gagné 1). Isi url dengan pautan YouTube, sebaiknya bermula pada saat yang dipilih. */
+/* id = kod video YouTube (contoh: Pmzh5NpUuvg). jeda = saat sebelum plastik dilepaskan. */
+const VIDEO = { id: 'PI18mudAoaU', jeda: 0, sumber: 'Pine Hills School Official, YouTube' };
+const VID_OPT = ['Setiap jalur plastik bercas sama jenis, jadi saling menolak', 'Angin daripada paip meniup jalur plastik', 'Jalur plastik menjadi lebih ringan selepas digosok', 'Jalur plastik menjadi magnet'];
+const VID_OK = 0;
+const ytWatch = (id, t) => `https://www.youtube.com/watch?v=${id}${t ? `&t=${t}s` : ''}`;
+function plastikVideo(part){
+  const canEmbed = /github\.io$/.test(location.hostname);
+  if(!VIDEO.id) return part === 1 ? videoCard({ url: '' }, 'plastik') : '';
+  if(canEmbed){
+    const src = `https://www.youtube-nocookie.com/embed/${VIDEO.id}?rel=0&start=${part === 1 ? 0 : VIDEO.jeda}${part === 1 && VIDEO.jeda ? `&end=${VIDEO.jeda}` : ''}`;
+    return `<div class="yt"><iframe src="${src}" title="Video plastik terapung, bahagian ${part}" allow="encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`;
+  }
+  return videoCard({ url: ytWatch(VIDEO.id, part === 1 ? 0 : VIDEO.jeda) }, 'plastik');
+}
+/* Dinding kelas untuk komen rakan sebaya (Padlet atau Google Classroom). Isi url dengan pautan dinding. */
+/* Kuiz Cabaran Detektif (aplikasi berasingan). Isi url dengan pautan GitHub Pages kuiz. */
+/* Di GitHub Pages, kuiz.html berada dalam repo yang sama dengan hub ini. */
+const KUIZ = { url: /github\.io$/.test(location.hostname) ? 'kuiz.html' : 'https://claude.ai/artifact/HfxGkA6BVVfBwuvpuEN4M7' };
+function kuizCard(label){
+  return KUIZ.url ? `<a class="vcard" href="${esc(KUIZ.url)}" target="_blank" rel="noopener"><span class="vcard-art">${kuizArt()}</span><span class="vcard-bar"><span>${label}</span><span aria-hidden="true">\u2197</span></span></a>` : `<div class="vcard off"><span class="vcard-art">${kuizArt()}</span><span class="vcard-bar">Pautan kuiz belum ditetapkan</span></div>`;
+}
+function kuizArt(){
+  const ink = '#1A1A2E';
+  const folder = (x, y, c, lock) => `<g transform="translate(${x} ${y})"><path d="M0 10 h22 l6 -8 h30 v8 h0 v54 h-58 z" fill="${c}" stroke="${ink}" stroke-width="3" stroke-linejoin="round"/>${lock ? `<rect x="20" y="32" width="18" height="14" rx="2" fill="#9CA3AF" stroke="${ink}" stroke-width="2.5"/><path d="M23 32 v-5 a6 6 0 0 1 12 0 v5" fill="none" stroke="${ink}" stroke-width="2.5"/>` : `<path d="M18 38 l7 7 l14 -16" fill="none" stroke="#139E5B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`}</g>`;
+  return `<svg viewBox="0 0 320 180" aria-hidden="true"><rect width="320" height="180" fill="#1E2A4A"/>
+    <g fill="#FFD23F" opacity=".25"><circle cx="30" cy="30" r="3"/><circle cx="290" cy="40" r="3"/><circle cx="260" cy="150" r="3"/><circle cx="50" cy="150" r="3"/></g>
+    ${folder(26, 60, '#F4D58D', false)}${folder(98, 60, '#F4D58D', false)}${folder(170, 60, '#D9DDE6', true)}${folder(242, 60, '#D9DDE6', true)}
+    <rect x="40" y="16" width="240" height="32" rx="4" fill="#FFD23F" stroke="${ink}" stroke-width="3" transform="rotate(-2 160 33)"/>
+    <text x="160" y="40" text-anchor="middle" textLength="216" lengthAdjust="spacingAndGlyphs" font-family="Bangers, 'Comic Sans MS', sans-serif" font-size="21" fill="${ink}" transform="rotate(-2 160 33)">5 FAIL KES MENUNGGU</text></svg>`;
+}
+/* Kod guru untuk membuka jawapan kartun konsep di Muzium Sains, selepas perbincangan kelas. Tukar mengikut kehendak guru. */
+const KOD_GURU = 'KILAT';
+const DINDING = { url: 'https://padlet.com/g_12122844/siapa-yang-betul-s02408yn5ce3w68h2ys7', nama: 'Padlet: Siapa yang betul?' };
+const VIDEO_VDG = { url: 'https://youtube.com/shorts/Pmzh5NpUuvg', sumber: 'Sri Chaitanya Academy NEET, YouTube' };
+
+const STAGES = [
+  { id:'sertai', name:'Sertai' }, { id:'cabar', name:'Cabar' }, { id:'teroka', name:'Teroka' }, { id:'misi', name:'Misi' },
+  { id:'terang', name:'Terang' }, { id:'selesaikan', name:'Selesaikan' }, { id:'kuasai', name:'Kuasai' }, { id:'selesai', name:'Selesai' }
+];
+
+const PRA = [
+  { k:'K1', t:'Belon digosok pada rambut. Apa sebenarnya berlaku?', o:['Geseran mencipta cas baharu pada belon','Elektron berpindah daripada rambut ke belon','Proton berpindah daripada belon ke rambut','Haba daripada geseran menjadikan belon bercas'], a:1 },
+  { k:'K2', t:'Selepas belon digosok pada rambut, rambut menjadi bercas…', o:['negatif, kerana menerima elektron','positif, kerana kehilangan elektron','neutral, kerana rambut tidak berubah','positif, kerana menerima proton'], a:1 },
+  { k:'K3', t:'Dua belon bercas negatif didekatkan. Apa berlaku?', o:['Saling menarik','Saling menolak','Tiada apa-apa berlaku','Kedua-duanya menjadi neutral'], a:1 },
+  { k:'K4', t:'Sikat yang digosok menarik kertas neutral. Kenapa?', o:['Kertas sudah bercas sejak awal','Sikat bertukar menjadi magnet','Cas dalam kertas tersusun semula','Ini tidak mungkin berlaku'], a:2 },
+  { k:'K5', t:'Kenapa kilat berlaku?', o:['Cahaya matahari memanaskan awan','Cas negatif awan tertarik kepada cas positif Bumi, lalu mengalir','Awan bergeser dengan permukaan Bumi','Proton jatuh daripada awan ke tanah'], a:1 }
+];
+const PASCA = [
+  { k:'K1', t:'Rod politena digosok dengan kain bulu dan menjadi bercas negatif. Mengapa?', o:['Rod politena kehilangan proton','Geseran mencipta elektron baharu','Rod politena menerima elektron daripada kain bulu','Kain bulu memberi proton kepada rod'], a:2, e:'Rod menerima elektron, jadi negatif.' },
+  { k:'K2', t:'Selepas menggosok rod politena tadi, kain bulu menjadi bercas…', o:['negatif','positif','neutral','tiada cas langsung'], a:1, e:'Kain bulu hilang elektron, jadi positif.' },
+  { k:'K3', t:'Rod bercas positif didekatkan dengan rod bercas negatif. Apa berlaku?', o:['Saling menolak','Saling menarik','Tiada apa-apa berlaku','Kedua-duanya menjadi negatif'], a:1, e:'Cas berlainan jenis saling menarik.' },
+  { k:'K4', t:'Belon bercas didekatkan pada aliran air paip. Apa berlaku?', o:['Aliran air melentur ke arah belon','Aliran air menjauhi belon','Aliran air berhenti','Tiada perubahan kerana air neutral'], a:0, e:'Cas dalam air tersusun semula, jadi air tertarik.' },
+  { k:'K5', t:'Apa tindakan paling selamat sebelum memegang muncung pam?', o:['Main telefon sambil menunggu','Menyentuh logam kereta dahulu','Menggosok tangan pada tempat duduk kereta','Memakai baju nilon'], a:1, e:'Cas mengalir pergi melalui logam, jauh dari wap petrol.' }
+];
+const KONSEP = { K1:'Elektron yang berpindah, cas tidak dicipta', K2:'Menentukan jenis cas selepas geseran', K3:'Tarikan dan tolakan antara cas', K4:'Objek bercas menarik objek neutral', K5:'Elektrostatik dalam kehidupan harian' };
+
+const M1_PRED = ['Elektron berpindah daripada rambut ke belon','Proton berpindah daripada belon ke rambut','Geseran mencipta cas baharu pada belon','Elektron berpindah daripada belon ke rambut'];
+const M2 = [
+  { id:'A', a:'Belon', ac:'neg', b:'Belon', bc:'neg', ans:'tolak', why:'Cas sama jenis saling menolak.' },
+  { id:'B', a:'Belon', ac:'neg', b:'Rambut', bc:'pos', ans:'tarik', why:'Cas berlainan jenis saling menarik.' },
+  { id:'C', a:'Belon', ac:'neg', b:'Dinding', bc:'neu', ans:'tarik', why:'Cas dalam dinding tersusun semula. Bahagian dekat belon menjadi positif.' }
+];
+const CC = [
+  { n:'Aina', skin:'#C98B5E', hair:'#2B1B12', shirt:'#FF6FAE', hijab:true, t:'Geseran mencipta cas baharu pada belon.', w:'Cas tidak dicipta. Elektron hanya berpindah.' },
+  { n:'Ravi', skin:'#7A4A2C', hair:'#14100C', shirt:'#4FD88F', t:'Proton daripada rambut berpindah ke belon.', w:'Proton tidak berpindah. Hanya elektron.' },
+  { n:'Mei Ling', skin:'#F1C9A0', hair:'#1A1A1A', shirt:'#FFD23F', long:true, t:'Elektron berpindah ke belon. Cas dalam dinding tersusun semula, jadi belon tertarik.', w:'' },
+  { n:'Haziq', skin:'#B97E52', hair:'#2A1A10', shirt:'#6FA0FF', t:'Dinding neutral, jadi belon tak patut melekat. Mesti ada gam!', w:'Objek bercas boleh menarik objek neutral.' }
+];
+const CC_OK = 2;
+function kid(k){
+  const hair = k.hijab ? `<path d="M18 46 Q18 12 50 12 Q82 12 82 46 L86 92 Q50 104 14 92 Z" fill="#7E57C2" stroke="#1A1A2E" stroke-width="3"/>` : `<path d="M22 44 Q20 14 50 14 Q80 14 78 44 Q70 30 50 30 Q30 30 22 44 Z" fill="${k.hair}" stroke="#1A1A2E" stroke-width="3"/>`;
+  if(k.long){
+    const back = `<path d="M20 50 Q16 14 50 14 Q84 14 80 50 L84 88 Q72 94 64 84 L36 84 Q28 94 16 88 Z" fill="${k.hair}" stroke="#1A1A2E" stroke-width="3" stroke-linejoin="round"/>`;
+    const fringe = `<path d="M23 48 Q22 18 50 18 Q78 18 77 48 Q72 34 62 36 Q56 28 48 34 Q40 30 34 38 Q28 38 23 48 Z" fill="${k.hair}" stroke="#1A1A2E" stroke-width="3" stroke-linejoin="round"/>`;
+    const clip = `<g stroke="#1A1A2E" stroke-width="2"><path d="M66 22 L76 16 L76 30 Z" fill="#FF6FAE"/><path d="M66 22 L56 16 L56 30 Z" fill="#FF6FAE"/><circle cx="66" cy="23" r="3.5" fill="#FFD23F"/></g>`;
+    return `<svg viewBox="0 0 100 110" aria-hidden="true">${back}<path d="M20 110 Q20 80 50 80 Q80 80 80 110 Z" fill="${k.shirt}" stroke="#1A1A2E" stroke-width="3"/><circle cx="50" cy="50" r="26" fill="${k.skin}" stroke="#1A1A2E" stroke-width="3"/>${fringe}${clip}<circle cx="41" cy="52" r="3.5" fill="#1A1A2E"/><circle cx="59" cy="52" r="3.5" fill="#1A1A2E"/><path d="M38 49 l-3 -3 M62 49 l3 -3" stroke="#1A1A2E" stroke-width="2" stroke-linecap="round"/><circle cx="35" cy="60" r="4" fill="#FF6FAE" opacity=".6"/><circle cx="65" cy="60" r="4" fill="#FF6FAE" opacity=".6"/><path d="M43 63 Q50 69 57 63" fill="none" stroke="#1A1A2E" stroke-width="3" stroke-linecap="round"/></svg>`;
+  }
+  return `<svg viewBox="0 0 100 110" aria-hidden="true"><path d="M20 110 Q20 80 50 80 Q80 80 80 110 Z" fill="${k.shirt}" stroke="#1A1A2E" stroke-width="3"/>${k.hijab ? hair : ''}<circle cx="50" cy="48" r="26" fill="${k.skin}" stroke="#1A1A2E" stroke-width="3"/>${k.hijab ? `<path d="M24 46 Q24 18 50 18 Q76 18 76 46 Q66 30 50 30 Q34 30 24 46 Z" fill="#7E57C2" stroke="#1A1A2E" stroke-width="3"/>` : hair}<circle cx="41" cy="50" r="3.5" fill="#1A1A2E"/><circle cx="59" cy="50" r="3.5" fill="#1A1A2E"/><path d="M42 61 Q50 67 58 61" fill="none" stroke="#1A1A2E" stroke-width="3" stroke-linecap="round"/></svg>`;
+}
+const PHET = { url:'https://phet.colorado.edu/en/simulations/balloons-and-static-electricity', embed:'https://phet.colorado.edu/sims/html/balloons-and-static-electricity/latest/balloons-and-static-electricity_all.html' };
+const PHET_Q = [
+  { t:'Gosok belon pada baju sejuk. Apakah yang berlaku kepada elektron?', o:['Elektron berpindah daripada belon ke baju sejuk','Elektron berpindah daripada baju sejuk ke belon','Proton berpindah daripada belon ke baju sejuk','Tiada apa-apa berpindah'], a:1, e:'Belon menjadi negatif, baju sejuk positif. Sama seperti belon dan rambut tadi.' },
+  { t:'Dekatkan belon pada dinding, jangan sentuh. Apa berlaku kepada cas dalam dinding?', o:['Dinding menjadi bercas negatif sepenuhnya','Proton dalam dinding bergerak ke arah belon','Elektron dinding ditolak menjauh, jadi bahagian dekat belon menjadi positif','Tiada perubahan pada dinding'], a:2, e:'Cas dalam dinding tersusun semula. Bahagian dekat belon menjadi positif, jadi belon tertarik.' },
+  { t:'Adakah PhET menunjukkan perkara yang sama seperti di Makmal Detektif?', o:['Ya: hanya elektron yang berpindah','Tidak: proton juga berpindah','Tidak: belon menolak dinding','Tidak: geseran mencipta cas baharu'], a:0, e:'Dua simulasi, keputusan sama. Bukti kita lebih kukuh.' }
+];
+function phetArt(){
+  const ink = '#1A1A2E';
+  const neg = (x, y) => `<circle cx="${x}" cy="${y}" r="7" fill="#1F63F2" stroke="${ink}" stroke-width="1.5"/><path d="M${x-3.5} ${y} h7" stroke="#fff" stroke-width="2"/>`;
+  const pos = (x, y) => `<circle cx="${x}" cy="${y}" r="7" fill="#EE3344" stroke="${ink}" stroke-width="1.5"/><path d="M${x-3.5} ${y} h7 M${x} ${y-3.5} v7" stroke="#fff" stroke-width="2"/>`;
+  return `<svg viewBox="0 0 320 180" aria-hidden="true"><rect width="320" height="180" fill="#E8F4FF"/>
+    <path d="M20 40 h70 l14 30 v100 h-98 v-100 z" fill="#E85D5D" stroke="${ink}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M30 90 h64 M30 110 h64 M30 130 h64 M30 150 h64" stroke="#C94848" stroke-width="3" stroke-dasharray="6 4"/>
+    ${pos(44,100)}${pos(76,120)}${pos(52,142)}
+    <ellipse cx="170" cy="86" rx="38" ry="46" fill="#FFD23F" stroke="${ink}" stroke-width="3"/><path d="M170 132 q-6 14 2 26 q6 10 -2 18" fill="none" stroke="${ink}" stroke-width="2"/>
+    ${neg(156,70)}${neg(178,62)}${neg(186,90)}${neg(160,100)}
+    <rect x="258" y="0" width="62" height="180" fill="#D8DEE8" stroke="${ink}" stroke-width="3"/>
+    ${pos(272,70)}${pos(272,100)}${neg(300,70)}${neg(300,100)}
+    <rect x="10" y="8" width="136" height="26" rx="4" fill="#FFD23F" stroke="${ink}" stroke-width="2.5"/><text x="78" y="27" text-anchor="middle" font-family="Bangers, 'Comic Sans MS', sans-serif" font-size="17" fill="${ink}">MAKMAL MAYA</text></svg>`;
+}
+function phetHTML(){
+  const canEmbed = /github\.io$/.test(location.hostname);
+  const done = PHET_Q.filter((q, i) => S.phet[i] != null).length;
+  return `<div class="block sub" id="phetBox">
+    <h2>Misi 1: Sahkan di makmal maya</h2>
+    <p class="muted">Buka makmal maya. Ikut setiap langkah, kemudian jawab.</p>
+    ${canEmbed ? `<div class="phet-frame"><iframe src="${PHET.embed}" title="Simulasi PhET Balloons and Static Electricity" allowfullscreen loading="lazy"></iframe></div>` : ''}
+    <a class="vcard" href="${PHET.url}" target="_blank" rel="noopener"><span class="vcard-art">${phetArt()}</span><span class="vcard-bar"><span>Buka makmal maya PhET</span><span aria-hidden="true">↗</span></span></a>
+    <p class="muted" style="font-size:.85rem">Simulasi: PhET Interactive Simulations, University of Colorado Boulder, lesen CC-BY 4.0.</p>
+    ${PHET_Q.map((q, i) => { if(i > 0 && S.phet[i-1] == null) return ''; const a = S.phet[i], d = a != null; return `<fieldset class="q" style="border:0;padding:0;margin:0"><legend class="qn" style="padding:0">LANGKAH ${i+1} / 3</legend><p style="font-weight:700">${esc(q.t)}</p>${d ? '' : hintHTML('phet'+i)}<div class="opts">${q.o.map((o, j) => `<label class="opt ${d ? (j===q.a?'right':(a===j?'wrong':'')) : ''}"><input type="radio" name="phet${i}" value="${j}" ${a===j?'checked':''} ${d?'disabled':''}><span>${esc(o)}</span></label>`).join('')}</div>${d ? `<div class="fb ${a===q.a?'ok':'bad'}"><b>${a===q.a?'Tepat!':'Belum tepat.'}</b><span>${esc(q.e)}</span></div>` : ''}</fieldset>`; }).join('')}
+    ${done === 3 ? '<p class="misi-ok">Misi makmal maya selesai! Pemerhatian kamu disahkan oleh dua simulasi.</p>' : ''}
+  </div>`;
+}
+const BERITA = { url:'https://thestar.com.my/news/nation/2016/07/01/the-myth-and-facts-of-fuelling-up-static-electricity-not-mobile-phone-usage-causes-sparks-and-starts', sumber:'The Star, 1 Julai 2016' };
+const MISTERI = {
+  o:['Telefon bimbit menghasilkan percikan','Cas pada badan memercik (nyahcas) dekat wap petrol','Cuaca panas menyalakan petrol'], a:1
+};
+function stripPanel(n){
+  const ink = '#1A1A2E';
+  const ground = `<rect x="0" y="176" width="360" height="24" fill="#C9D3E0"/><path d="M0 176 H360" stroke="${ink}" stroke-width="2.5"/>`;
+  const pump = `<rect x="18" y="62" width="52" height="114" rx="4" fill="#EE3344" stroke="${ink}" stroke-width="2.5"/><rect x="26" y="72" width="36" height="22" fill="#CFEAFF" stroke="${ink}" stroke-width="2"/><text x="44" y="125" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">RON95</text>`;
+  const car = `<path d="M118 160 V124 Q120 112 136 110 L170 86 Q176 82 186 82 H240 Q250 82 256 88 L278 110 Q296 112 298 126 V160 Z" fill="#1F63F2" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/><path d="M176 92 H214 V110 H156 Z M220 92 H244 L262 110 H220 Z" fill="#CFEAFF" stroke="${ink}" stroke-width="2" stroke-linejoin="round"/><circle cx="150" cy="162" r="14" fill="#333" stroke="${ink}" stroke-width="2.5"/><circle cx="266" cy="162" r="14" fill="#333" stroke="${ink}" stroke-width="2.5"/><rect x="122" y="118" width="8" height="10" fill="#FFD23F" stroke="${ink}" stroke-width="1.5"/>`;
+  const hoseIn = `<path d="M70 100 Q100 150 122 124" fill="none" stroke="${ink}" stroke-width="4"/><rect x="112" y="116" width="14" height="8" rx="2" fill="#555" stroke="${ink}" stroke-width="1.5"/>`;
+  const person = (x, y) => `<g stroke="${ink}" stroke-width="2.5" stroke-linecap="round"><circle cx="${x}" cy="${y}" r="11" fill="#C98B5E"/><rect x="${x-11}" y="${y+12}" width="22" height="36" rx="6" fill="#FF6FAE"/><path d="M${x-6} ${y+48} V${y+72} M${x+6} ${y+48} V${y+72}"/></g>`;
+  const neg = (x, y) => `<circle cx="${x}" cy="${y}" r="6" fill="#1F63F2" stroke="${ink}" stroke-width="1.5"/><path d="M${x-3} ${y} h6" stroke="#fff" stroke-width="2"/>`;
+  let body = '';
+  if(n === 1) body = `${pump}${car}${hoseIn}${person(94, 100)}<path d="M104 120 L114 120" stroke="${ink}" stroke-width="2.5" stroke-linecap="round"/><path d="M126 106 q4 -10 0 -18 M134 106 q4 -10 0 -18" stroke="#9AA6B8" stroke-width="2" fill="none"/><text x="140" y="78" font-size="10" fill="${ink}">wap petrol</text>`;
+  if(n === 2) body = `${pump}${car}${hoseIn}<circle cx="232" cy="100" r="10" fill="#C98B5E" stroke="${ink}" stroke-width="2.5"/><rect x="220" y="110" width="24" height="14" fill="#FF6FAE" stroke="${ink}" stroke-width="2"/><path d="M250 104 l10 -4 M250 112 l12 0 M250 120 l10 4" stroke="#EE3344" stroke-width="2.5" stroke-linecap="round"/>${neg(212,96)}${neg(214,116)}<text x="240" y="70" text-anchor="middle" font-family="Bangers, 'Comic Sans MS', sans-serif" font-size="18" fill="#EE3344">GESER! GESER!</text>`;
+  if(n === 3) body = `${pump}${car}${hoseIn}${person(94, 100)}${neg(86,122)}${neg(100,134)}${neg(90,146)}<polygon points="108,104 112,112 120,110 114,116 118,124 110,119 104,126 105,117 98,114 106,112" fill="#FFD23F" stroke="${ink}" stroke-width="1.5"/><path d="M124 112 q6 -16 2 -26 q10 10 8 26 z" fill="#FF7A1A" stroke="${ink}" stroke-width="1.5"/><text x="150" y="70" font-family="Bangers, 'Comic Sans MS', sans-serif" font-size="22" fill="#EE3344">NYAHCAS!</text>`;
+  if(n === 4) body = `${pump}${car}${hoseIn}${person(318, 100)}<path d="M307 120 L292 124" stroke="${ink}" stroke-width="2.5" stroke-linecap="round"/>${neg(296,112)}<path d="M288 132 l-14 0 m4 -4 l-4 4 l4 4" stroke="${ink}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="318" cy="58" r="16" fill="#139E5B" stroke="${ink}" stroke-width="2"/><path d="M310 58 l6 6 l10 -12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="200" y="60" text-anchor="middle" font-size="10.5" fill="${ink}">jauh dari wap petrol</text>`;
+  return `<svg viewBox="0 0 360 200" aria-hidden="true"><rect width="360" height="200" fill="#EAF4FF"/>${ground}${body}</svg>`;
+}
+function misteriHTML(){
+  const a = S.misteri, d = a != null, ok = a === MISTERI.a;
+  const steps = [
+    ['1. Mula isi minyak', 'Wap petrol ada di sekitar pam.'],
+    ['2. Masuk semula ke kereta', 'Badan bergeser dan menjadi bercas.'],
+    ['3. Pegang muncung pam', 'Cas memercik. Wap petrol terbakar.'],
+    ['4. Cara selamat', 'Sentuh logam kereta dahulu, jauh dari muncung.']
+  ];
+  return `<div class="block sub" id="misteriBox">
+    <h3>Fail kes</h3>
+    <div class="case-file">
+      <span class="mono">Laporan kes · Setapak, Kuala Lumpur · 2016</span>
+      <p>Api marak ketika seorang wanita mengisi minyak. Ramai kata <b>telefon bimbit</b> puncanya.</p>
+      <a class="btn ghost" href="${BERITA.url}" target="_blank" rel="noopener">Baca laporan berita ↗</a>
+      <p class="muted" style="font-size:.85rem">Sumber: ${BERITA.sumber}</p>
+    </div>
+    <div class="evid">
+      <div><span class="mono">Bukti A</span><p>Pakar UPM: isyarat telefon terlalu lemah untuk menghasilkan percikan.</p></div>
+      <div><span class="mono">Bukti B</span><p>Pakar keselamatan stesen minyak (Amerika Syarikat): badan yang bergeser dengan tempat duduk menjadi bercas, lalu memercik pada muncung pam.</p></div>
+      <div><span class="mono">Bukti C</span><p>Wap petrol terbakar walaupun oleh percikan kecil.</p></div>
+    </div>
+    <p style="font-weight:700">Berdasarkan bukti, apakah punca yang paling mungkin?</p>
+    ${d ? '' : hintHTML('misteri')}
+    <div class="opts">${MISTERI.o.map((o, j) => `<label class="opt ${d ? (j===MISTERI.a?'right':(a===j?'wrong':'')) : ''}"><input type="radio" name="misteri" value="${j}" ${a===j?'checked':''} ${d?'disabled':''}><span>${esc(o)}</span></label>`).join('')}</div>
+    ${d ? `<div class="fb ${ok?'ok':'bad'}"><b>${ok?'Kes diselesaikan, detektif!':'Semak semula bukti.'}</b><span>Bukti A dan B menunjuk kepada <b>nyahcas</b>. <b>Geseran</b> dengan tempat duduk memindahkan <b>elektron</b> ke badan. Lihat urutannya:</span></div>
+    <div class="strip">${steps.map((s, i) => `<figure class="sp">${stripPanel(i+1)}<figcaption><b>${s[0]}</b><span>${s[1]}</span></figcaption></figure>`).join('')}</div>
+    <div class="starter"><p><b>Bolehkah guna telefon di stesen minyak?</b></p><p>Tetap <b>ikut papan tanda</b>. Telefon mengganggu tumpuan, dan bateri panas juga berisiko.</p></div>` : ''}
+  </div>`;
+}
+const VDG_OPT = ['Setiap helai rambut bercas sama jenis, jadi saling menolak','Kubah penjana meniup angin ke atas','Rambut menjadi lebih ringan apabila dipanaskan'];
+const CHAIN = [
+  'Belon digosok pada rambut',
+  'Elektron berpindah daripada rambut ke belon',
+  'Belon bercas negatif, rambut bercas positif',
+  'Cas berlainan jenis saling menarik, jadi rambut tertarik ke arah belon'
+];
+const CHAIN_SHOW = [2,0,3,1];
+const KES = [
+  { id:'fabrik', t:'Pakaian dan udara kering', s:'Aina selalu terkena kejutan kecil apabila menanggalkan baju di bilik berhawa dingin yang kering. Fabrik mana lebih sesuai?', o:['Kapas','Nilon','Poliester'], a:0, e:'Fabrik sintetik seperti nilon dan poliester mudah mengumpul cas dalam udara kering. Kapas menyerap sedikit lembapan, jadi cas mudah hilang.' },
+  { id:'petir', t:'Ribut petir', s:'Kamu sedang berada di padang ketika ribut petir bermula. Di manakah tempat paling selamat?', o:['Di bawah pokok yang tinggi','Di tengah padang yang lapang','Di dalam kereta atau bangunan'], a:2, e:'Badan logam kereta bertindak sebagai sangkar Faraday. Cas mengalir di permukaan luar logam ke Bumi, bukan melalui orang di dalamnya. Perlindungan ini datang daripada badan logam, bukan tayar getah.' },
+  { id:'tv', t:'Skrin TV berhabuk', s:'Skrin TV cepat berhabuk semula walaupun baru dilap. Apakah penyelesaian terbaik?', o:['Lap dengan kain nilon kering','Lap dengan kain mikrogentian antistatik','Biarkan sahaja'], a:1, e:'Skrin yang bercas menarik habuk. Kain mikrogentian ialah bahan antistatik, jadi skrin tidak cepat berhabuk.' }
+];
+
+/* ====== KEADAAN ====== */
+const fresh = () => ({
+  stage:0, reached:0, xp:0, got:{}, nama:'', kelas:'', awal:'', akhir:'', refleksi:'',
+  nama2:'', daftar:false, kuiz:false, vid:null, vdg:null, misteri:null, dinding:false, cc:null, ccUnlock:false, seg:{}, view:'loc', sub:'vdg', hint:{}, depoh:{}, stamped:[], snd:true, phet:{}, pra:{}, praDone:false, pasca:{}, pascaDone:false,
+  teroka:{ e:8, found:{}, pick:null },
+  m1:{ pred:null, hairE:10, balE:10, air:0, humid:false, done:false, humidSeen:false },
+  m2:{ A:{p:null,t:false}, B:{p:null,t:false}, C:{p:null,t:false} },
+  chain:[], chainOk:false, chainTry:0,
+  kilat:{ q:0, rod:false, hitFree:false, hitRod:false, last:null },
+  kes:{}
+});
+let S = fresh();
+const KEY = 'detektif-elektron-v1';
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function load(){ try{ const r = localStorage.getItem(KEY); if(r){ const d = JSON.parse(r); S = Object.assign(fresh(), d); } }catch(e){} }
+
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function mascot(cls=''){
+  return `<svg class="${cls}" viewBox="0 0 140 132" role="img" aria-label="Detektif El"><g stroke="#1A1A2E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <line x1="104" y1="92" x2="122" y2="112" stroke-width="7"/>
+    <circle cx="62" cy="80" r="44" fill="#1F63F2"/>
+    <path d="M24 44 Q26 10 62 10 Q98 10 100 44 Z" fill="#F2A93B"/>
+    <path d="M40 22 L84 22 M34 33 L90 33" stroke-width="2.5" fill="none"/>
+    <ellipse cx="62" cy="44" rx="46" ry="9" fill="#F2A93B"/>
+    <ellipse cx="47" cy="70" rx="10" ry="12" fill="#fff"/><ellipse cx="77" cy="70" rx="10" ry="12" fill="#fff"/>
+    <path d="M48 92 Q62 103 76 92" fill="none"/>
+    <rect x="48" y="106" width="28" height="8" rx="3" fill="#fff" stroke-width="3"/>
+    <circle cx="108" cy="80" r="17" fill="#CFEAFF" fill-opacity=".85"/></g>
+    <circle cx="49" cy="72" r="5" fill="#1A1A2E"/><circle cx="79" cy="72" r="5" fill="#1A1A2E"/>
+    <circle cx="51" cy="70" r="1.8" fill="#fff"/><circle cx="81" cy="70" r="1.8" fill="#fff"/>
+    <circle cx="35" cy="88" r="6" fill="#FF6FAE" opacity=".8"/><circle cx="89" cy="88" r="6" fill="#FF6FAE" opacity=".8"/>
+    <path d="M100 74 Q104 68 110 68" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
+}
+function burst(word){
+  return `<svg class="burst" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,2 60,30 90,14 72,40 98,52 70,60 84,90 56,72 46,98 38,70 10,86 26,58 2,46 30,38 14,10 42,26" fill="#FFD23F" stroke="#1A1A2E" stroke-width="3.5" stroke-linejoin="round"/><text x="50" y="58" text-anchor="middle" font-family="Bangers, 'Comic Sans MS', sans-serif" font-size="22" fill="#EE3344" stroke="#1A1A2E" stroke-width="1">${word}</text></svg>`;
+}
+function videoArt(kind){
+  const ink = '#1A1A2E';
+  const play = `<g class="play"><circle cx="160" cy="92" r="30" fill="#FF6FAE" stroke="${ink}" stroke-width="4"/><path d="M150 76 L176 92 L150 108 Z" fill="#fff" stroke="${ink}" stroke-width="3" stroke-linejoin="round"/></g>`;
+  if(kind === 'plastik') return `<svg viewBox="0 0 320 180" aria-hidden="true">
+    <rect width="320" height="180" fill="#9BB3C9"/>
+    <path d="M20 0 V124 M52 0 V124 M84 0 V124 M236 0 V124 M268 0 V124 M300 0 V124" stroke="#86A0B8" stroke-width="6"/>
+    <rect y="124" width="320" height="56" fill="#2E9E6B" stroke="${ink}" stroke-width="3"/>
+    <rect x="40" y="140" width="200" height="16" rx="8" transform="rotate(-8 140 148)" fill="#fff" stroke="${ink}" stroke-width="3"/>
+    <g stroke-width="3" stroke-linecap="round"><path d="M232 40 q-6 30 -2 60" stroke="#F2C14E"/><path d="M238 40 q0 30 6 58" stroke="#8BC34A"/><path d="M244 40 q8 28 14 54" stroke="#F2C14E"/><path d="M228 40 q-12 26 -14 52" stroke="#8BC34A"/><path d="M250 40 q14 22 24 46" stroke="#F2C14E"/></g>
+    <ellipse cx="240" cy="34" rx="20" ry="14" fill="#fff" stroke="${ink}" stroke-width="3"/>
+    <g><path d="M40 24 h64 a10 10 0 0 1 10 10 v30 a10 10 0 0 1 -10 10 h-30 l-12 14 l-2 -14 h-20 a10 10 0 0 1 -10 -10 v-30 a10 10 0 0 1 10 -10z" fill="#FFD23F" stroke="${ink}" stroke-width="3"/><text x="72" y="64" text-anchor="middle" font-family="Bangers, 'Comic Sans MS', sans-serif" font-size="38" fill="${ink}">?</text></g>
+    ${play}</svg>`;
+  return `<svg viewBox="0 0 320 180" aria-hidden="true">
+    <rect width="320" height="180" fill="#F6E7C8"/>
+    <rect y="150" width="320" height="30" fill="#D9C29A"/>
+    <rect x="214" y="118" width="14" height="40" fill="#B7C3D0" stroke="${ink}" stroke-width="3"/>
+    <rect x="196" y="150" width="50" height="12" rx="3" fill="#5C6BC0" stroke="${ink}" stroke-width="3"/>
+    <circle cx="221" cy="92" r="36" fill="#DDE6EE" stroke="${ink}" stroke-width="3"/><path d="M202 78 q10 -14 26 -10" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <g transform="translate(-22 0)"><g stroke="#C9A25A" stroke-width="3" stroke-linecap="round"><path d="M84 56 L70 20"/><path d="M92 52 L88 12"/><path d="M102 52 L106 12"/><path d="M110 56 L126 20"/><path d="M78 64 L52 42"/><path d="M116 64 L142 42"/></g>
+    <circle cx="97" cy="78" r="24" fill="#F1C9A0" stroke="${ink}" stroke-width="3"/>
+    <path d="M70 180 Q70 108 97 108 Q124 108 130 130 L210 92" fill="#3A3A55" stroke="${ink}" stroke-width="3" stroke-linejoin="round"/></g>
+    <g stroke="#FFD23F" stroke-width="3" stroke-linecap="round"><path d="M262 62 l14 -8"/><path d="M266 92 h16"/><path d="M262 120 l14 8"/></g>
+    <g transform="translate(-4 -42)">${play}</g></svg>`;
+}
+function videoCard(v, kind){
+  const art = videoArt(kind);
+  if(v.url) return `<a class="vcard" href="${esc(v.url)}" target="_blank" rel="noopener"><span class="vcard-art">${art}</span><span class="vcard-bar"><span>▶ Tonton video</span><span aria-hidden="true">↗</span></span></a>`;
+  return `<div class="vcard off"><span class="vcard-art">${art}</span><span class="vcard-bar">Pautan video belum ditetapkan</span></div>`;
+}
+const RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1800); }
+function award(key, n, msg){ if(S.got[key]) return; S.got[key] = true; S.xp += n; $('#xp').textContent = S.xp; toast(`+${n} XP · ${msg}`); save(); }
+
+function stageDone(i){
+  switch(i){
+    case 0: return !!S.daftar && S.nama.trim().length > 0 && S.kelas.trim().length > 0 && S.vid != null;
+    case 1: return S.praDone;
+    case 2: return ['pos','neg','neu'].every(k => S.teroka.found[k]) && S.m1.pred != null && S.m1.done;
+    case 3: return PHET_Q.every((q, j) => S.phet[j] != null) && M2.every(m => S.m2[m.id].t);
+    case 4: return S.chainOk && S.cc != null;
+    case 5: return S.vdg != null && S.misteri != null && S.kilat.hitFree && S.kilat.hitRod && S.kuiz;
+    case 6: return S.pascaDone;
+    case 8: return DEPOH.every((q, j) => S.depoh[j] != null);
+    default: return false;
+  }
+}
+
+const LOCS = [
+  { id:'balai', stage:0, name:'Balai Detektif', ic:'🏠', x:70, y:52 },
+  { id:'soal', stage:1, name:'Bilik Soal Siasat', ic:'🔍', x:228, y:118 },
+  { id:'makmal', stage:2, name:'Makmal Detektif', ic:'🧪', x:72, y:190 },
+  { id:'maya', stage:3, name:'Pusat Sains Maya', ic:'💻', x:228, y:258 },
+  { id:'kelas', stage:4, name:'Bilik Darjah', ic:'🏫', x:70, y:335 },
+  { id:'muzium', stage:5, sub:'vdg', name:'Muzium Sains', ic:'🏛️', x:58, y:448 },
+  { id:'stesen', stage:5, sub:'misteri', name:'Stesen Minyak', ic:'⛽', x:150, y:492 },
+  { id:'padang', stage:5, sub:'kilat', name:'Padang Kilat', ic:'⛈️', x:242, y:448 },
+  { id:'hq', stage:5, sub:'kuiz', name:'Ibu Pejabat Kuiz', ic:'🎯', x:228, y:575 },
+  { id:'mahkamah', stage:6, name:'Mahkamah', ic:'⚖️', x:70, y:600 },
+  { id:'tutup', stage:7, name:'Kes Ditutup', ic:'🏆', x:150, y:655 },
+  { id:'depoh', stage:8, name:'Depoh Lori Minyak', ic:'🚛', x:234, y:352, bonus:true }
+];
+const PHASE = ['Sertai','Cabar','Teroka','Misi','Terang','Selesaikan','Kuasai','Selesai','Cabaran Pakar'];
+const LID = id => LOCS.find(L => L.id === id);
+function cur(){ return LOCS.find(L => L.stage === S.stage && (S.stage !== 5 || L.sub === (S.sub || 'vdg'))); }
+function subDone(sub){ const k = S.kilat; return sub === 'vdg' ? S.vdg != null : sub === 'misteri' ? S.misteri != null : sub === 'kilat' ? (k.hitFree && k.hitRod) : !!S.kuiz; }
+function locDone(L){
+  if(L.stage === 5) return subDone(L.sub);
+  if(L.stage === 7) return S.akhir.trim().length > 20 && S.refleksi.trim().length > 20;
+  return stageDone(L.stage);
+}
+function locOpen(L){
+  const d = id => locDone(LID(id));
+  switch(L.id){
+    case 'balai': return true;
+    case 'soal': return d('balai');
+    case 'makmal': return d('soal');
+    case 'maya': return d('makmal');
+    case 'kelas': return d('maya');
+    case 'depoh': return d('maya');
+    case 'muzium': case 'stesen': case 'padang': return d('kelas');
+    case 'hq': return d('muzium') && d('stesen') && d('padang');
+    case 'mahkamah': return d('hq');
+    case 'tutup': return d('mahkamah');
+  }
+  return false;
+}
+function nextLoc(){ return LOCS.find(L => !L.bonus && locOpen(L) && !locDone(L)); }
+function renderBar(){
+  const g = (S.m1.done ? 1 : 0) + (['pos','neg','neu'].every(k => S.teroka.found[k]) ? 1 : 0), L = cur();
+  $('#stagebar').innerHTML = `<button type="button" class="tb ${S.view==='map'?'on':''}" id="mapBtn" ${S.daftar?'':'disabled'}>🗺️ Peta</button>
+    <span class="tb-loc">${S.view==='map' ? 'Bandar Elektron' : esc(L ? L.name : '')}</span>
+    <span class="tb-rule" title="Peraturan Emas ditemui">⭐ ${g}/2</span>
+    <button type="button" class="tb" id="sndBtn" aria-pressed="${S.snd}" aria-label="${S.snd?'Matikan bunyi':'Hidupkan bunyi'}" title="${S.snd?'Matikan bunyi':'Hidupkan bunyi'}">${S.snd?'🔊':'🔇'}</button>`;
+  $('#mapBtn').onclick = () => { if(S.daftar) goMap(); };
+  $('#sndBtn').onclick = () => { S.snd = !S.snd; save(); renderBar(); SFX.play('open'); };
+}
+function openLoc(id){
+  const L = LID(id); if(!L) return;
+  if(!locOpen(L)){ SFX.play('lock'); toast('Lokasi ini masih berkunci'); return; }
+  stopHumid(); SFX.play('open');
+  S.stage = L.stage; if(L.sub) S.sub = L.sub; S.view = 'loc';
+  if(!L.bonus) S.reached = Math.max(S.reached, L.stage);
+  save(); sfxQuiet = true; render();
+  window.scrollTo({ top: 0, behavior: RM ? 'auto' : 'smooth' });
+}
+function goMap(){
+  stopHumid(); S.view = 'map'; save(); sfxQuiet = true; render();
+  window.scrollTo({ top: 0, behavior: RM ? 'auto' : 'smooth' });
+}
+function go(i){ const L = LOCS.find(x => x.stage === i); if(L) openLoc(L.id); }
+function mapSVG(){
+  const P = id => { const L = LID(id); return `${L.x} ${L.y}`; };
+  const main = ['balai','soal','makmal','maya','kelas'].map(P).join(' L ');
+  const tree = (x, y, r=9) => `<circle cx="${x}" cy="${y+r*.9}" r="${r*.35}" fill="#7A4A2C"/><circle cx="${x}" cy="${y}" r="${r}" fill="var(--grass2)" stroke="var(--line)" stroke-width="1.5"/>`;
+  const road = d => `<path d="${d}" fill="none" stroke="var(--line)" stroke-width="19" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="var(--road)" stroke-width="14" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="6 7" opacity=".85"/>`;
+  return `<svg viewBox="0 0 300 700" preserveAspectRatio="none" aria-hidden="true">
+    <defs><pattern id="ht" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="var(--grass2)"/></pattern></defs>
+    <rect width="300" height="700" fill="var(--grass)"/><rect width="300" height="700" fill="url(#ht)" opacity=".6"/>
+    <path d="M300 300 Q250 380 300 420 Z" fill="#7CC6F2" opacity=".7"/>
+    <ellipse cx="150" cy="466" rx="130" ry="66" fill="var(--plaza)" stroke="var(--line)" stroke-width="2.5" stroke-dasharray="7 5"/>
+    <text x="150" y="424" text-anchor="middle" font-family="Bangers, 'Comic Sans MS', sans-serif" font-size="13" letter-spacing="1" fill="var(--ink)">DATARAN KES</text>
+    <text x="150" y="437" text-anchor="middle" font-size="9" font-weight="700" fill="var(--ink)">pilih urutan sendiri</text>
+    ${road('M' + main + ' L 150 402')}
+    ${road(`M150 520 L ${P('hq')} L ${P('mahkamah')} L ${P('tutup')}`)}
+    <path d="M${P('maya')} L ${P('depoh')}" fill="none" stroke="var(--line)" stroke-width="5" stroke-dasharray="4 6" stroke-linecap="round"/>
+    ${[[24,120],[276,40],[150,150],[18,260],[150,290],[280,200],[20,520],[282,520],[150,610],[285,640],[18,670],[150,30]].map(([x,y]) => tree(x,y)).join('')}
+  </svg>`;
+}
+function nodeHTML(L, nx, fresh){
+  const open = locOpen(L), done = locDone(L), now = open && !done && !L.bonus;
+  const st = done ? 'done' : now ? 'now' : open ? 'open' : 'locked';
+  const label = `${L.name}: ${done ? 'selesai' : open ? 'dibuka' : 'berkunci'}`;
+  return `<button type="button" class="node ${st} ${fresh.includes(L.id)?'stamp-new':''}" data-loc="${L.id}" style="left:${(L.x/3).toFixed(2)}%;top:${(L.y/7).toFixed(2)}%" aria-label="${label}"><span class="ic">${L.ic}${done ? '<span class="badge-s">✓</span>' : !open ? '<span class="badge-s">🔒</span>' : ''}</span><span class="nm">${L.bonus ? '<i>BONUS</i>' : ''}${L.name}</span></button>`;
+}
+function rPeta(){
+  const nx = nextLoc(), fresh = LOCS.filter(L => locDone(L) && !S.stamped.includes(L.id)).map(L => L.id);
+  const triad = nx && nx.stage === 5 && nx.sub !== 'kuiz';
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Peta siasatan</span><h2>Bandar Elektron</h2>
+    <p class="muted">Lokasi bercahaya sedang menunggu kamu. Lokasi berkunci dibuka satu demi satu.</p></div>
+    ${nx ? `<div class="map-next"><span>${triad ? '<b>Dataran Kes dibuka!</b> Pilih mana-mana kes dahulu.' : `Lokasi seterusnya: <b>${esc(nx.name)}</b>`}</span><button class="btn" type="button" data-loc="${nx.id}">${triad ? 'Mula di ' + esc(nx.name) : 'Pergi'} ▶</button></div>` : `<div class="map-next"><span><b>Semua lokasi selesai.</b> Syabas, detektif!</span></div>`}
+    <div class="map">${mapSVG()}${LOCS.map(L => nodeHTML(L, nx, fresh)).join('')}</div>
+    <div class="map-key"><span>✨ Bercahaya: buka sekarang</span><span>✓ Selesai</span><span>🔒 Berkunci</span></div>
+  </section>`;
+  $$('[data-loc]').forEach(b => b.onclick = () => openLoc(b.dataset.loc));
+  if(fresh.length){ S.stamped = S.stamped.concat(fresh); save(); SFX.play('stamp'); if(nx) setTimeout(() => SFX.play('unlock'), 380); }
+}
+function footer(){
+  const L = cur(); if(!L) return '';
+  if(L.id === 'tutup') return `<div class="foot"><button class="btn ghost" type="button" id="back">← Peta</button></div>`;
+  const d = locDone(L);
+  return `<div class="foot"><button class="btn ghost" type="button" id="back">← Peta</button><button class="btn" type="button" id="next" ${d?'':'disabled'}>${d ? 'Selesai! Ke peta ▶' : 'Selesaikan misi dahulu'}</button></div>`;
+}
+function bindFooter(){
+  updateMisi();
+  const L = cur(), m = $('#stage .card-head .mono');
+  if(m && L && S.view !== 'map' && S.daftar) m.textContent = L.bonus ? `Bonus · ${L.name} · ${PHASE[L.stage]}` : `Lokasi ${({balai:1,soal:2,makmal:3,maya:4,kelas:5,muzium:6,stesen:6,padang:6,hq:7,mahkamah:8,tutup:9})[L.id]} · ${L.name} · ${PHASE[L.stage]}`;
+  const b = $('#back'); if(b) b.onclick = goMap;
+  const n = $('#next'); if(n) n.onclick = () => { if(locDone(cur())) goMap(); };
+}
+function refreshNext(){ const n = $('#next'), d = locDone(cur()); if(n){ n.disabled = !d; n.textContent = d ? 'Selesai! Ke peta ▶' : 'Selesaikan misi dahulu'; } renderBar(); updateMisi(); }
+
+/* ====== PETUNJUK BERPERINGKAT ====== */
+const HINTS = {
+  cas: ['Kira nombor merah (proton) dan nombor biru (elektron).', 'Elektron lebih banyak → negatif. Elektron kurang → positif. Sama banyak → neutral.'],
+  phet0: ['Dalam PhET, perhatikan tanda (−) pada baju sejuk sebelum dan selepas digosok.', 'Ingat Peraturan Emas 2: hanya elektron yang berpindah. Ke mana tanda (−) itu pergi?'],
+  phet1: ['Dalam PhET, dekatkan belon pada dinding dan perhatikan tanda (−) dalam dinding.', 'Belon negatif menolak elektron dinding. Bahagian dinding yang dekat dengan belon tinggal apa?'],
+  phet2: ['Bandingkan dengan belon dan rambut di Makmal Detektif.', 'Dalam kedua-dua simulasi, adakah tanda (+) pernah bergerak?'],
+  chain: ['Mula dengan perkara yang kamu buat dengan tangan.', 'Tindakan → zarah berpindah → bahan bercas → daya tarikan.'],
+  vdg: ['Semua helai rambut menerima cas daripada kubah yang sama.', 'Cas yang sama jenis saling… menarik atau menolak?'],
+  misteri: ['Bukti mana yang menyebut telefon? Apa kata pakar tentangnya?', 'Bukti B: badan bergeser dengan tempat duduk. Apa berlaku apabila dua bahan bergeser?'],
+  depoh0: ['Ingat konduktor kilat di Padang Kilat.', 'Rantai logam mencecah jalan. Ke mana cas boleh mengalir?'],
+  depoh1: ['Apa yang berlaku kepada cas apabila kilat menyambar konduktor?', 'Kedua-duanya diperbuat daripada logam yang menyentuh Bumi.']
+};
+function hintHTML(k){
+  const H = HINTS[k]; if(!H) return '';
+  const lv = Math.min((S.hint || {})[k] || 0, H.length);
+  return `<div class="hint" data-hk="${k}">${H.slice(0, lv).map((h, i) => `<p class="hint-p"><b>Petunjuk ${i+1}:</b> ${h}</p>`).join('')}${lv < H.length ? `<button class="btn ghost hint-btn" type="button" data-hint="${k}">💡 ${lv ? 'Petunjuk seterusnya' : 'Perlukan petunjuk?'}</button>` : ''}</div>`;
+}
+document.addEventListener('click', ev => {
+  const b = ev.target.closest && ev.target.closest('[data-hint]'); if(!b) return;
+  const k = b.dataset.hint; S.hint = S.hint || {}; S.hint[k] = (S.hint[k] || 0) + 1; save(); SFX.play('hint');
+  const box = b.closest('.hint'); if(box) box.outerHTML = hintHTML(k);
+});
+
+/* ====== BUNYI ====== */
+const SFX = (() => {
+  let ctx = null;
+  const ac = () => { try{ if(!ctx){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; ctx = new C(); } if(ctx.state === 'suspended') ctx.resume(); return ctx; }catch(e){ return null; } };
+  const tone = (c, f, t, d, type='sine', v=.12, f2=null) => { const o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if(f2) o.frequency.exponentialRampToValueAtTime(f2, t + d); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .015); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + d + .05); };
+  const noise = (c, t, d, v=.2, freq=1200, q=1) => { const n = Math.max(1, Math.floor(c.sampleRate * d)), b = c.createBuffer(1, n, c.sampleRate), a = b.getChannelData(0); for(let i=0;i<n;i++) a[i] = (Math.random()*2-1) * Math.pow(1 - i/n, 2); const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); src.buffer = b; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q; g.gain.value = v; src.connect(f); f.connect(g); g.connect(c.destination); src.start(t); };
+  function play(name, arg){
+    if(!S.snd) return; const c = ac(); if(!c) return; const t = c.currentTime + .01;
+    try{ switch(name){
+      case 'ok': tone(c,659,t,.14,'triangle',.14); tone(c,988,t+.11,.24,'triangle',.14); break;
+      case 'bad': tone(c,330,t,.16,'triangle',.1,262); tone(c,247,t+.15,.26,'triangle',.1,196); break;
+      case 'unlock': [523,659,784,1047].forEach((f, i) => tone(c,f,t+i*.09,.22,'triangle',.12)); break;
+      case 'open': tone(c,520,t,.1,'sine',.1,780); break;
+      case 'lock': tone(c,150,t,.16,'square',.05,100); break;
+      case 'stamp': noise(c,t,.1,.6,700,.8); tone(c,170,t,.14,'sine',.25,90); break;
+      case 'rub': noise(c,t,.25,.5,2600,.7); for(let i=0;i<4;i++) noise(c,t+.05+Math.random()*.2,.02,.5,5200,2); break;
+      case 'charge': tone(c,300+(arg||0)*90,t,.12,'sine',.09); break;
+      case 'zap': noise(c,t,.12,1,4200,.6); noise(c,t+.06,1.1,.8,160,.7); tone(c,70,t+.05,.9,'sawtooth',.07,38); break;
+      case 'hint': tone(c,880,t,.08,'sine',.08); tone(c,1175,t+.07,.14,'sine',.08); break;
+      case 'win': [[523,0],[659,.12],[784,.24],[1047,.36],[784,.54],[1047,.66]].forEach(([f, d], i) => tone(c,f,t+d,i > 4 ? .6 : .18,'triangle',.13)); break;
+    } }catch(e){}
+  }
+  return { play };
+})();
+let fbSeen = new Set(), sfxQuiet = true;
+function fbScan(){
+  const now = new Set(); let snd = null;
+  $$('#stage .fb.ok, #stage .fb.bad, #stage .discover').forEach(el => {
+    if(el.closest('#kilatFb')) return;
+    const kind = el.classList.contains('discover') ? 'unlock' : el.classList.contains('ok') ? 'ok' : 'bad';
+    const key = kind + '|' + el.textContent.trim().slice(0, 140);
+    now.add(key);
+    if(!sfxQuiet && !fbSeen.has(key)) snd = (snd === 'unlock' || kind === 'unlock') ? 'unlock' : (snd || kind);
+  });
+  fbSeen = now; sfxQuiet = false;
+  if(snd) SFX.play(snd);
+}
+function rulesHTML(title){
+  const rub = `<svg viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="28" cy="20" rx="12" ry="14" fill="#FFD23F" stroke="#1A1A2E" stroke-width="2.5"/><path d="M4 36 h22 M8 42 h18" stroke="#1A1A2E" stroke-width="2.5" stroke-linecap="round"/><path d="M6 14 l6 0 M4 20 l8 0 M6 26 l6 0" stroke="#EE3344" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+  const ele = `<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="12" cy="24" r="8" fill="#EE3344" stroke="#1A1A2E" stroke-width="2"/><path d="M8 24 h8 M12 20 v8" stroke="#fff" stroke-width="2.5"/><path d="M12 36 v6" stroke="#1A1A2E" stroke-width="2"/><path d="M8 40 l8 -6 M8 34 l8 6" stroke="#1A1A2E" stroke-width="2"/><circle cx="36" cy="24" r="8" fill="#1F63F2" stroke="#1A1A2E" stroke-width="2"/><path d="M32 24 h8" stroke="#fff" stroke-width="2.5"/><path d="M24 12 q12 -8 18 4" fill="none" stroke="#1A1A2E" stroke-width="2" stroke-dasharray="3 3"/><path d="M42 16 l-1 -6 l-5 3" fill="none" stroke="#1A1A2E" stroke-width="2" stroke-linejoin="round"/></svg>`;
+  return `<div class="rules"><h3>${title}</h3><ol>${ruleItem(1)}${ruleItem(2)}</ol></div>`;
+}
+function ruleItem(n){
+  const rub = `<svg viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="28" cy="20" rx="12" ry="14" fill="#FFD23F" stroke="#1A1A2E" stroke-width="2.5"/><path d="M4 36 h22 M8 42 h18" stroke="#1A1A2E" stroke-width="2.5" stroke-linecap="round"/><path d="M6 14 l6 0 M4 20 l8 0 M6 26 l6 0" stroke="#EE3344" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+  const ele = `<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="12" cy="24" r="8" fill="#EE3344" stroke="#1A1A2E" stroke-width="2"/><path d="M8 24 h8 M12 20 v8" stroke="#fff" stroke-width="2.5"/><path d="M12 36 v6" stroke="#1A1A2E" stroke-width="2"/><path d="M8 40 l8 -6 M8 34 l8 6" stroke="#1A1A2E" stroke-width="2"/><circle cx="36" cy="24" r="8" fill="#1F63F2" stroke="#1A1A2E" stroke-width="2"/><path d="M32 24 h8" stroke="#fff" stroke-width="2.5"/><path d="M24 12 q12 -8 18 4" fill="none" stroke="#1A1A2E" stroke-width="2" stroke-dasharray="3 3"/><path d="M42 16 l-1 -6 l-5 3" fill="none" stroke="#1A1A2E" stroke-width="2" stroke-linejoin="round"/></svg>`;
+  if(n === 1) return `<li>${rub}<div><b>1. Cas dihasilkan melalui GESERAN.</b><p>Apabila dua bahan digosok, kedua-dua bahan menjadi bercas.</p></div></li>`;
+  return `<li>${ele}<div><b>2. Hanya ELEKTRON yang berpindah.</b><p>Proton tidak bergerak. <b>Terima</b> elektron → negatif. <b>Hilang</b> elektron → positif.</p></div></li>
+    <li class="cd-li"><div class="charge-diagram">${chargeMini(4, 'NEUTRAL', 'Proton = elektron', 'var(--muted)')}${chargeMini(2, 'POSITIF', 'Kehilangan elektron', '#EE3344')}${chargeMini(6, 'NEGATIF', 'Menerima elektron', '#1F63F2')}</div></li>`;
+}
+function discoverHTML(n){
+  return `<div class="rules discover pop"><h3>Penemuan! Peraturan Emas ${n}</h3><ol>${ruleItem(n)}</ol></div>`;
+}
+function trackerHTML(){
+  const g1 = !!S.m1.done, g2 = ['pos','neg','neu'].every(k => S.teroka.found[k]);
+  const slot = (ok, n, name, hint) => `<div class="slot ${ok?'open':''}"><span class="slot-ic">${ok ? '✓' : `<svg width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="12" width="18" height="13" rx="2" fill="#9CA3AF" stroke="#1A1A2E" stroke-width="2.2"/><path d="M9 12V8a5 5 0 0 1 10 0v4" fill="none" stroke="#1A1A2E" stroke-width="2.2"/></svg>`}</span><div><b>Peraturan Emas ${n}: ${ok ? name : '???'}</b><span>${ok ? 'Ditemui!' : hint}</span></div></div>`;
+  return `<div class="tracker"><span class="mono">Rahsia untuk ditemui: ${(g1?1:0)+(g2?1:0)} / 2</span>
+    ${slot(g2, 2, 'Hanya elektron yang berpindah', 'Selesaikan Ujikaji 1 untuk membukanya')}
+    ${slot(g1, 1, 'Cas dihasilkan melalui geseran', 'Selesaikan Ujikaji 2 untuk membukanya')}</div>`;
+}
+function chargeMini(n, label, cap, col){
+  const pts = ringPts(40, 40, 14, 4, Math.PI/4).map(([x,y]) => pSym(x,y,6.5)).join('') + ringPts(40, 40, 30, n, -Math.PI/2).map(([x,y]) => nSym(x,y,6.5)).join('');
+  return `<figure class="cm"><svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="38" fill="#FFFFFF" stroke="${col}" stroke-width="3"/>${pts}</svg><figcaption><b style="color:${col}">${label}</b><span class="cmc"><i class="pp">4 proton (+)</i><i class="nn">${n} elektron (−)</i></span><span>${cap}</span></figcaption></figure>`;
+}
+function misiItems(i){
+  const m = S.m1, k = S.kilat;
+  const kes = KES.filter(c => S.kes[c.id] != null).length, pra = PRA.filter((q, j) => S.pra[j] != null).length, pas = PASCA.filter((q, j) => S.pasca[j] != null).length, m2 = M2.filter(x => S.m2[x.id].t).length;
+  switch(i){
+    case 0: return [['Daftar nama ahli pasangan dan kelas', !!S.daftar && S.nama.trim().length > 0 && S.kelas.trim().length > 0], ['Jawab soalan video plastik terapung', S.vid != null], ['Tulis jawapan awal soalan siasatan', S.awal.trim().length > 0, 1]];
+    case 1: return [[`Jawab semua soalan (${pra}/5)`, pra === 5], ['Tekan Hantar jawapan', S.praDone]];
+    case 2: return [[`Kenal pasti cas: neutral, positif dan negatif (${['neu','pos','neg'].filter(x => S.teroka.found[x]).length}/3)`, ['pos','neg','neu'].every(x => S.teroka.found[x])], ['Buat ramalan sebelum menggosok belon', m.pred != null], ['Gosok belon sehingga 4 elektron berpindah', m.done], ['Siasat hari yang lembap', !!S.got.lembap, 1]];
+    case 3: return [[`Makmal maya PhET (${PHET_Q.filter((q, j) => S.phet[j] != null).length}/3)`, PHET_Q.every((q, j) => S.phet[j] != null)], [`Uji situasi tarik atau tolak (${m2}/3)`, m2 === 3]];
+    case 4: return [['Susun rantai penerangan', S.chainOk], ['Pilih pendapat dalam kartun konsep', S.cc != null], ['Siar dan komen di Padlet', S.dinding, 1]];
+    case 5: return ({ vdg:[['Jawab soalan rambut tegak', S.vdg != null], ['Bincang jawapan kartun konsep bersama guru', !!S.ccUnlock, 1]], misteri:[['Selesaikan Misteri Stesen Minyak', S.misteri != null]], kilat:[['Lihat kilat tanpa konduktor', k.hitFree], ['Lihat kilat dengan konduktor', k.hitRod]], kuiz:[['Selesaikan Kuiz Cabaran dan hantar keputusan', S.kuiz]] })[S.sub || 'vdg'];
+    case 8: return [[`Jawab soalan Cabaran Pakar (${DEPOH.filter((q, j) => S.depoh[j] != null).length}/2)`, DEPOH.every((q, j) => S.depoh[j] != null)]];
+    case 6: return [[`Jawab semua soalan (${pas}/5)`, pas === 5], ['Tekan Hantar jawapan', S.pascaDone]];
+    default: return [['Jawab semula soalan siasatan', S.akhir.trim().length > 20, 1], ['Tulis refleksi pasangan', S.refleksi.trim().length > 20, 1], ['Cuba semula Kuiz Cabaran 3 hari lagi', false, 1]];
+  }
+}
+function misiHTML(i){
+  const it = misiItems(i), req = it.filter(x => !x[2]), ok = req.length > 0 && req.every(x => x[1]);
+  return `<div class="misi checks" aria-live="polite"><div class="misi-head"><span class="mono">Misi lokasi ini</span>${req.length ? `<span class="misi-count">${req.filter(x => x[1]).length} / ${req.length}</span>` : ''}</div><ul>${it.map(([t, d, b]) => `<li class="${d?'done':''}">${esc(t)}${b ? ' <em class="bonus">bonus</em>' : ''}</li>`).join('')}</ul>${ok && i < 7 ? `<p class="misi-ok">Lokasi selesai! Tekan <b>Ke peta</b> di bawah.</p>` : ''}</div>`;
+}
+const BRIDGE = [
+  '<b>Misi hari ini:</b> bongkar rahsia cas elektrik yang tidak kelihatan.',
+  '<b>Tadi:</b> kamu menonton jurai plastik mengembang. <b>Sekarang:</b> tunjukkan idea awal kamu.',
+  '<b>Tadi:</b> kamu menjawab ujian pra. <b>Sekarang:</b> uji sendiri di makmal.',
+  '<b>Tadi:</b> kamu nampak elektron berpindah ke belon. <b>Sekarang:</b> sahkan di makmal maya.',
+  '<b>Tadi:</b> kamu menguji tarik dan tolak. <b>Sekarang:</b> terangkan sebabnya.',
+  '<b>Tadi:</b> kamu menerangkan cara cas terhasil. <b>Sekarang:</b> selesaikan kes sebenar.',
+  '<b>Tadi:</b> kamu menyelesaikan Kuiz Cabaran. <b>Sekarang:</b> buktikan kefahaman kamu di mahkamah.',
+  '<b>Tadi:</b> kamu menjawab ujian pasca. <b>Sekarang:</b> tutup kes.'
+];
+function bridgeText(){
+  if(S.stage === 5 && S.sub === 'kuiz') return '<b>Tadi:</b> kamu menyelesaikan tiga kes sebenar. <b>Sekarang:</b> cabaran akhir.';
+  if(S.stage === 8) return '<b>Tadi:</b> kamu mengesahkan cas di makmal maya. <b>Sekarang:</b> cabaran untuk pakar.';
+  return BRIDGE[S.stage] || '';
+}
+const LOCK_IC = `<svg width="30" height="30" viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="12" width="18" height="13" rx="2" fill="#9CA3AF" stroke="#1A1A2E" stroke-width="2.2"/><path d="M9 12V8a5 5 0 0 1 10 0v4" fill="none" stroke="#1A1A2E" stroke-width="2.2"/></svg>`;
+const lockStep = t => `<div class="lock-step">${LOCK_IC}<p>${t}</p></div>`;
+function updateMisi(){
+  const card = $('#stage .card'); if(!card) return;
+  const html = misiHTML(S.stage), old = card.querySelector('.misi');
+  if(old) old.outerHTML = html; else { const h = card.querySelector('.card-head'); if(h){ const bt = bridgeText(), br = (bt && !(S.stage === 0 && !S.daftar)) ? `<p class="bridge">${bt}</p>` : ''; h.insertAdjacentHTML('afterend', br + html); } }
+}
+
+function render(){
+  $('#xp').textContent = S.xp;
+  if(S.view === 'map' && !S.daftar) S.view = 'loc';
+  renderBar();
+  if(S.view === 'map'){ rPeta(); return; }
+  const fn = [rSertai, rCabar, rTeroka, rMisi, rTerang, rSelesaikan, rKuasai, rSelesai, rDepoh][S.stage] || rSertai;
+  fn();
+  bindFooter();
+}
+
+/* ====== 01 SERTAI ====== */
+function panggil(n){
+  n = (n || '').trim().replace(/\s+/g, ' ');
+  if(!n) return '';
+  const cut = n.split(/\s+(?:bin|binti|bt|bte|b\.|bt\.|a\/l|a\/p|anak)\s+/i)[0];
+  return cut.split(' ').slice(0, 3).join(' ');
+}
+function greetNames(){
+  const a = panggil(S.nama), b = panggil(S.nama2);
+  if(a && b) return `Detektif ${a} dan Detektif ${b}`;
+  return a ? `Detektif ${a}` : 'detektif';
+}
+function rSertai(){
+  if(!S.daftar){
+    const ok = S.nama.trim() && S.kelas.trim();
+    $('#stage').innerHTML = `<section class="card">
+      <div class="card-head"><span class="mono">Daftar detektif</span><h2>Siapa nama kamu?</h2></div>
+      ${burst('HAI!')}
+      <div class="hero">${mascot('mascot pop')}
+        <p class="bubble">Hai! Saya Detektif El. Sebelum siasatan bermula, perkenalkan diri kamu dan pasangan kamu.</p></div>
+      <div class="row">
+        <label class="field">Nama penuh ahli 1<input type="text" id="nama" maxlength="60" placeholder="Nama seperti dalam sijil" value="${esc(S.nama)}" autocomplete="off"></label>
+        <label class="field">Nama penuh ahli 2<input type="text" id="nama2" maxlength="60" placeholder="Kosongkan jika bekerja seorang" value="${esc(S.nama2)}" autocomplete="off"></label>
+        <label class="field">Kelas<input type="text" id="kelas" maxlength="12" placeholder="contoh: 2 Bestari" value="${esc(S.kelas)}" autocomplete="off"></label>
+      </div>
+      <p class="muted" style="font-size:.9rem">Tulis nama penuh dengan betul. Nama ini akan dicetak pada sijil dan hanya dihantar kepada guru.</p>
+      <button class="btn big-cta" type="button" id="daftar" ${ok ? '' : 'disabled'}>Daftar sebagai detektif</button>
+      <p class="muted" id="daftarNote" style="font-size:.88rem">${ok ? '' : 'Isi nama ahli 1 dan kelas untuk mendaftar.'}</p>
+    </section>`;
+    const upd = () => {
+      S.nama = $('#nama').value; S.nama2 = $('#nama2').value; S.kelas = $('#kelas').value; save();
+      const good = S.nama.trim() && S.kelas.trim();
+      $('#daftar').disabled = !good; $('#daftarNote').textContent = good ? '' : 'Isi nama ahli 1 dan kelas untuk mendaftar.';
+      updateMisi();
+    };
+    ['#nama','#nama2','#kelas'].forEach(x => $(x).addEventListener('input', upd));
+    $('#daftar').onclick = () => {
+      if(!(S.nama.trim() && S.kelas.trim())) return;
+      S.daftar = true; save(); award('daftar', 5, 'Detektif didaftarkan');
+      rSertai(); bindFooter(); renderBar();
+      $('#stage').scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'start' });
+    };
+    return;
+  }
+  const greet = greetNames();
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Babak 01 · Sertai siasatan</span><h2>Selamat datang, ${esc(greet)}!</h2></div>
+    ${burst('ZAP!')}
+    <div class="hero">${mascot('mascot pop')}
+      <p class="bubble">Hai, ${esc(greet)}! Sesuatu yang tidak kelihatan sedang menegakkan rambut dan mencetuskan kilat. Jom siasat!</p></div>
+    <p class="registered"><span>Pasukan: <b>${esc(S.nama.trim())}</b>${S.nama2.trim() ? ` &amp; <b>${esc(S.nama2.trim())}</b>` : ''} · ${esc(S.kelas.trim())}</span> <button type="button" class="linkbtn" id="ubahNama">Ubah nama</button></p>
+    <div class="board">
+      <h3>Papan kes hari ini</h3>
+      <div class="board-grid">
+        <div class="bf main"><span class="sulit">SULIT</span><span class="mono">Kes 3 · Misteri utama · Stesen Minyak</span><b>Kebakaran di stesen minyak</b><p>Api marak ketika seorang wanita mengisi minyak. Ramai kata telefon puncanya. <b>Benarkah?</b></p></div>
+        <div class="bf"><span class="mono">Kes 1 · Balai Detektif</span><b>Plastik terapung</b><p>Kenapa jurai plastik mengembang?</p></div>
+        <div class="bf"><span class="mono">Kes 2 · Muzium Sains</span><b>Rambut tegak</b><p>Kenapa rambut berdiri apabila menyentuh penjana?</p></div>
+      </div>
+    </div>
+    <div class="video-panel">
+      <h3>Kes pertama: plastik terapung</h3>
+      <p><b>1. Tonton</b> video. Perhatikan jurai plastik di atas paip.</p>
+      ${plastikVideo(1)}
+      <p style="font-weight:700">2. Fikir bersama pasangan: kenapa jurai plastik itu mengembang?</p>
+      <div class="chip-row">${VID_OPT.map((o, j) => `<button type="button" class="chip ${S.vid===j?'on':''}" data-vid="${j}">${o}</button>`).join('')}</div>
+      <p class="muted" style="font-size:.88rem">${S.vid != null ? 'Jawapan direkod. Kita semak di Bilik Darjah.' : 'Tiada jawapan salah di sini.'} Video: ${esc(VIDEO.sumber)}.</p>
+    </div>
+    ${S.vid == null ? lockStep('Jawab soalan video untuk membuka langkah seterusnya.') : `<div class="block sub"><h3>Pada akhir misi, kami boleh…</h3>
+      <ul class="kk">
+        <li>terangkan bahawa hanya elektron berpindah semasa geseran</li>
+        <li>tentukan bahan yang bercas positif atau negatif</li>
+        <li>ramal sama ada objek menarik atau menolak</li>
+        <li>terangkan kejadian kilat</li>
+        <li>cadangkan cara mengelak bahaya cas elektrik</li>
+      </ul></div>
+    <div class="block sub"><h3>Dua soalan detektif</h3>
+      <span class="mono">Soalan besar</span>
+      <p class="q-besar">Bagaimanakah sesuatu yang tidak dapat kita lihat menerangkan fenomena yang kita alami setiap hari?</p>
+      <span class="mono">Soalan siasatan hari ini</span>
+      <p class="q-topik">Sejauh manakah elektrostatik membantu atau membahayakan kehidupan harian kita?</p>
+      <label class="field" for="awal">Jawapan awal kami (boleh salah)</label>
+      <textarea id="awal" placeholder="Kami rasa…">${esc(S.awal)}</textarea></div>`}
+    ${footer()}</section>`;
+  $$('[data-vid]').forEach(b => b.onclick = () => { S.vid = +b.dataset.vid; save(); if(stageDone(0)) award('sertai', 10, 'Pasukan sedia menyiasat'); rSertai(); bindFooter(); renderBar(); });
+  $('#ubahNama').onclick = () => { S.daftar = false; save(); rSertai(); bindFooter(); };
+  const aw = $('#awal'); if(aw) aw.addEventListener('input', () => { S.awal = aw.value; save(); updateMisi(); });
+}
+
+/* ====== KUIZ ====== */
+function quizHTML(list, ans, done, reveal, name){
+  return list.map((q, i) => `<fieldset class="q" style="border:0;padding:0;margin:0">
+    <legend class="qn" style="padding:0">SOALAN ${i+1} / ${list.length}</legend>
+    <p style="font-weight:700">${esc(q.t)}</p>
+    <div class="opts">${q.o.map((o, j) => {
+      let cls = '';
+      if(reveal){ if(j === q.a) cls = 'right'; else if(ans[i] === j) cls = 'wrong'; }
+      return `<label class="opt ${cls}"><input type="radio" name="${name}${i}" value="${j}" ${ans[i]===j?'checked':''} ${done?'disabled':''}><span>${esc(o)}</span></label>`;
+    }).join('')}</div>
+    ${reveal && q.e ? `<div class="fb ${ans[i]===q.a?'ok':'bad'}"><b>${ans[i]===q.a?'Tepat.':'Belum tepat.'}</b><span>${esc(q.e)}</span></div>` : ''}
+  </fieldset>`).join('');
+}
+function bindQuiz(list, ans, name, onChange){
+  list.forEach((q, i) => $$(`input[name="${name}${i}"]`).forEach(r => r.addEventListener('change', () => { ans[i] = +r.value; save(); onChange(); updateMisi(); })));
+}
+const score = (list, ans) => list.reduce((s, q, i) => s + (ans[i] === q.a ? 1 : 0), 0);
+
+/* ====== 02 CABAR ====== */
+function rCabar(){
+  const all = PRA.every((q, i) => S.pra[i] != null);
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Babak 02 · Cabar · Ujian pra</span><h2>Apa yang kita fikir sekarang?</h2>
+    <p class="muted">Pilih satu jawapan bersama pasangan. Ini bukan ujian markah.</p></div>
+    ${quizHTML(PRA, S.pra, S.praDone, false, 'pra')}
+    ${S.praDone ? `<div class="fb info"><b>Jawapan direkod.</b><span>Kita bandingkan di Mahkamah.</span></div>` :
+      `<div class="btns"><button class="btn" type="button" id="hantarPra" ${all?'':'disabled'}>Hantar jawapan</button></div>`}
+    ${footer()}</section>`;
+  if(!S.praDone){
+    bindQuiz(PRA, S.pra, 'pra', () => { $('#hantarPra').disabled = !PRA.every((q, i) => S.pra[i] != null); });
+    $('#hantarPra').onclick = () => { S.praDone = true; award('pra', 10, 'Ujian pra selesai'); save(); render(); };
+  }
+}
+
+/* ====== 03 TEROKA ====== */
+function ringPts(cx, cy, r, n, off=0){ const p = []; for(let i=0;i<n;i++){ const a = off + i * 2 * Math.PI / Math.max(n,1); p.push([cx + r*Math.cos(a), cy + r*Math.sin(a)]); } return p; }
+const pSym = (x, y, r=9) => `<g><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="var(--pos)"/><text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">+</text></g>`;
+const nSym = (x, y, r=9) => `<g><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="var(--neg)"/><text x="${x.toFixed(1)}" y="${(y+4.5).toFixed(1)}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">−</text></g>`;
+function chargeOf(p, e){ return e > p ? 'neg' : e < p ? 'pos' : 'neu'; }
+const CNAME = { neg:'bercas negatif', pos:'bercas positif', neu:'neutral' };
+function rTeroka(){
+  const P = 8, e = S.teroka.e, c = chargeOf(P, e), f = S.teroka.found, m = S.m1;
+  const pick = S.teroka.pick, right = pick === c;
+  const why = c==='neu' ? 'Proton dan elektron sama banyak.' : c==='neg' ? 'Elektron lebih banyak.' : 'Proton lebih banyak.';
+  const CL = { neu:'Neutral', pos:'Bercas positif', neg:'Bercas negatif' };
+  const svg = `<svg viewBox="0 0 360 214" role="img" aria-label="Model objek dengan ${P} proton dan ${e} elektron">
+    <circle cx="180" cy="112" r="92" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+    <circle cx="180" cy="112" r="40" fill="var(--soft)" stroke="var(--line)" stroke-dasharray="4 4"/>
+    ${ringPts(180,112,24,P,0.2).map(([x,y]) => pSym(x,y,8)).join('')}
+    ${ringPts(180,112,70,e,-Math.PI/2).map(([x,y]) => nSym(x,y,9)).join('')}</svg>`;
+  const predHTML = `<div class="opts">${M1_PRED.map((o, j) => `<label class="opt ${m.done ? (j===0?'right':(m.pred===j?'wrong':'')) : ''}"><input type="radio" name="m1p" value="${j}" ${m.pred===j?'checked':''} ${m.pred!=null?'disabled':''}><span>${esc(o)}</span></label>`).join('')}</div>`;
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Babak 03 · Teroka</span><h2>Makmal Detektif</h2>
+    <p class="muted">Buat dua ujikaji. Temui dua rahsia sendiri.</p></div>
+    ${trackerHTML()}
+    <div class="block sub"><h3>Ujikaji 1: Ubah bilangan elektron</h3>
+      <div class="legend"><span><i class="dot p">+</i> Proton</span><span><i class="dot n">−</i> Elektron</span></div>
+      <div class="sim">${svg}<div class="count-row"><div class="cnt p"><span>Proton (+)</span><b>${P}</b></div><div class="cnt vs">vs</div><div class="cnt n"><span>Elektron (−)</span><b>${e}</b></div></div></div>
+      <div class="btns center">
+        <button class="btn ghost" type="button" id="kurang" ${e<=5?'disabled':''}>− Buang 1 elektron</button>
+        <button class="btn ghost" type="button" id="tambah" ${e>=11?'disabled':''}>+ Tambah 1 elektron</button>
+      </div>
+      <div class="tanya">
+        <p><b>Objek ini bercas apa?</b> Bandingkan nombor merah dan biru.</p>
+        <div class="chip-row">${['neu','pos','neg'].map(k => `<button type="button" class="chip ${pick===k?'on':''}" data-cas="${k}" ${right?'disabled':''}>${CL[k]}</button>`).join('')}</div>
+        ${right ? '' : hintHTML('cas')}
+        <div aria-live="polite">${pick ? (right ? `<div class="fb ok"><b>Tepat!</b><span>${why} Cuba keadaan lain.</span></div>` : `<div class="fb bad"><b>Belum tepat.</b><span>Mana lebih banyak: proton atau elektron? Cuba lagi.</span></div>`) : ''}</div>
+      </div>
+      <div class="found"><span>Cabaran: hasilkan dan kenal pasti</span>${['neu','pos','neg'].map(k => `<span class="${f[k]?'on':''}">${f[k]?'✓':'•'} ${CL[k]}</span>`).join('')}</div>
+      ${['pos','neg','neu'].every(k => f[k]) ? discoverHTML(2) : ''}
+    </div>
+    ${!['pos','neg','neu'].every(k => f[k]) ? lockStep('<b>Ujikaji 2</b> dibuka selepas Ujikaji 1 selesai.') : `<div class="block sub"><h3>Ujikaji 2: Gosok belon (Ramal → Perhati)</h3>
+      <div class="step-box"><span class="step-no">1</span><div><b>Ramal</b><p>Apa berlaku apabila belon digosok pada rambut? Pilih satu. Pilihan akan dikunci.</p></div></div>
+      ${predHTML}
+      ${m.pred == null ? `<div class="lock-step"><svg width="30" height="30" viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="12" width="18" height="13" rx="2" fill="#9CA3AF" stroke="#1A1A2E" stroke-width="2.2"/><path d="M9 12V8a5 5 0 0 1 10 0v4" fill="none" stroke="#1A1A2E" stroke-width="2.2"/></svg><p><b>Langkah 2: Perhati</b> dibuka selepas kamu meramal.</p></div>` : `
+      <div class="step-box"><span class="step-no">2</span><div><b>Perhati</b><p>Ramalan kamu: <b>${esc(M1_PRED[m.pred])}</b>. Tekan Gosok dan perhatikan elektron.</p></div></div>
+      <div class="sim" id="m1sim">${m1SVG()}</div>
+      <div class="stat" id="m1stat">${m1Stats()}</div>
+      <div class="btns">
+        <button class="btn" type="button" id="gosok" ${m.hairE<=4?'disabled':''}>Gosok belon</button>
+        <button class="btn ghost" type="button" id="m1reset">Set semula</button>
+      </div>
+      <div id="m1fb" aria-live="polite">${m1Feedback()}</div>`}
+    </div>`}
+    <div class="block sub" id="humidBox" ${S.seg.nota?'':'hidden'}>
+      <h3>Siasatan tambahan: hari yang lembap</h3>
+      <p class="muted">Udara di Malaysia selalunya lembap. Hidupkan suis. Apa berlaku kepada cas?</p>
+      <label class="toggle"><input type="checkbox" id="humid" ${m.humid?'checked':''}> Udara lembap</label>
+      <div id="humidFb" aria-live="polite">${humidMsg()}</div>
+    </div>
+    ${footer()}</section>`;
+  if(['pos','neg','neu'].every(k => f[k])) award('teroka', 5, 'Tiga keadaan cas ditemui');
+  save();
+  const again = () => { rTeroka(); bindFooter(); renderBar(); };
+  $('#kurang').onclick = () => { S.teroka.e = Math.max(5, e-1); S.teroka.pick = null; again(); };
+  $('#tambah').onclick = () => { S.teroka.e = Math.min(11, e+1); S.teroka.pick = null; again(); };
+  $$('[data-cas]').forEach(b => b.onclick = () => { S.teroka.pick = b.dataset.cas; if(S.teroka.pick === c){ f[c] = true; award('cas-'+c, 3, 'Cas dikenal pasti'); if(['pos','neg','neu'].every(k => f[k])) award('rule2', 10, 'Rahsia ditemui: Peraturan Emas 2'); } save(); again(); });
+  $$('input[name="m1p"]').forEach(r => r.addEventListener('change', () => { S.m1.pred = +r.value; save(); again(); }));
+  const gb = $('#gosok'); if(gb) gb.onclick = rub;
+  const rs = $('#m1reset'); if(rs) rs.onclick = () => { stopHumid(); Object.assign(S.m1, { hairE:10, balE:10, air:0, humid:false }); save(); again(); };
+  const h = $('#humid'); if(h) h.onchange = () => { S.m1.humid = h.checked; save(); if(h.checked) startHumid(); else stopHumid(); };
+  if(S.m1.humid) startHumid();
+}
+
+/* ====== 04 MISI ====== */
+let humidTimer = null;
+function stopHumid(){ if(humidTimer){ clearInterval(humidTimer); humidTimer = null; } }
+function gridPts(x0, y0, cols, dx, dy, n){ const p = []; for(let i=0;i<n;i++) p.push([x0 + (i%cols)*dx, y0 + Math.floor(i/cols)*dy]); return p; }
+const HAIR_P = gridPts(42, 98, 5, 24, 0, 5).concat(gridPts(54, 126, 4, 24, 0, 4)).concat([[90,152]]);
+const BAL_P = gridPts(240, 90, 4, 20, 0, 4).concat(gridPts(230, 112, 5, 20, 0, 5)).concat([[270,134]]);
+function hairE(n){ return gridPts(30, 72, 6, 22, 0, 6).concat(gridPts(30, 172, 6, 22, 0, 6)).concat(gridPts(30,108,1,0,30,2)).concat(gridPts(162,108,1,0,30,2)).slice(0, n); }
+function balE(n){ return ringPts(270, 112, 60, 16, -Math.PI/2).concat(ringPts(270,112,42,6,0.3)).slice(0, n); }
+function m1SVG(){
+  const m = S.m1, hc = chargeOf(10, m.hairE), bc = chargeOf(10, m.balE);
+  const lbl = c => c==='neg'?'NEGATIF':c==='pos'?'POSITIF':'NEUTRAL';
+  const col = c => c==='pos'?'var(--pos)':c==='neg'?'var(--neg)':'var(--muted)';
+  return `<svg viewBox="0 0 360 250" role="img" aria-label="Rambut ${m.hairE} elektron, belon ${m.balE} elektron">
+    <rect x="16" y="56" width="164" height="136" rx="18" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+    <text x="98" y="44" text-anchor="middle" font-family="var(--f-display)" font-weight="600" font-size="14" fill="var(--ink)">Rambut · <tspan font-family="var(--f-mono)" font-size="12" fill="${col(hc)}">${lbl(hc)}</tspan></text>
+    <g id="bal"><ellipse cx="270" cy="112" rx="70" ry="76" fill="var(--card)" stroke="var(--line)" stroke-width="2"/>
+    <path d="M270 188 q-8 14 0 26 q8 12 -2 24" fill="none" stroke="var(--muted)" stroke-width="1.5"/></g>
+    <text x="270" y="26" text-anchor="middle" font-family="var(--f-display)" font-weight="600" font-size="14" fill="var(--ink)">Belon · <tspan font-family="var(--f-mono)" font-size="12" fill="${col(bc)}">${lbl(bc)}</tspan></text>
+    ${HAIR_P.map(([x,y]) => pSym(x,y,8)).join('')}
+    ${BAL_P.map(([x,y]) => pSym(x,y,8)).join('')}
+    ${hairE(m.hairE).map(([x,y]) => nSym(x,y,8)).join('')}
+    ${balE(m.balE).map(([x,y]) => nSym(x,y,8)).join('')}
+    <text x="98" y="214" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--muted)">10 PROTON · ${m.hairE} ELEKTRON</text>
+    <text x="200" y="246" text-anchor="end" font-family="var(--f-mono)" font-size="11" fill="var(--muted)">BELON: 10 PROTON · ${m.balE} ELEKTRON</text>
+    <g id="fly"></g></svg>`;
+}
+function m1Stats(){
+  const m = S.m1;
+  return `<div><span class="mono">Elektron rambut</span><b>${m.hairE}</b></div>
+    <div><span class="mono">Elektron belon</span><b>${m.balE}</b></div>
+    <div><span class="mono">Bocor ke udara</span><b>${m.air}</b></div>
+    <div><span class="mono">Jumlah elektron</span><b>${m.hairE + m.balE + m.air} (kekal)</b></div>`;
+}
+function rMisi(){
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Babak 04 · Misi</span><h2>Misi di makmal maya</h2>
+    <p class="muted">Dua misi: sahkan di makmal maya, kemudian uji tarik atau tolak.</p></div>
+    ${phetHTML()}
+    ${!PHET_Q.every((q, j) => S.phet[j] != null) ? lockStep('<b>Misi 2</b> dibuka selepas Misi 1 selesai.') : `<div class="block sub">
+      <h2>Misi 2: Tarik atau tolak?</h2>
+      <p class="muted">Belon bercas negatif. Ramal dahulu, kemudian tekan Uji.</p>
+      <div class="pair">${M2.map(scnHTML).join('')}</div>
+    </div>`}
+    ${footer()}</section>`;
+  M2.forEach(sc => {
+    $$(`[data-pr="${sc.id}"]`).forEach(b => b.onclick = () => { if(S.m2[sc.id].t) return; S.m2[sc.id].p = b.dataset.v; save(); refreshScn(sc); });
+    const u = $(`#uji${sc.id}`); if(u) u.onclick = () => testScn(sc);
+  });
+  rebindPhet();
+}
+function rebindPhet(){
+  PHET_Q.forEach((q, i) => $$(`input[name="phet${i}"]`).forEach(r => r.addEventListener('change', () => {
+    if(S.phet[i] != null) return; S.phet[i] = +r.value; if(S.phet[i] === q.a) award('phet'+i, 3, 'Makmal maya'); save();
+    rMisi(); bindFooter(); renderBar();
+  })));
+}
+function m1Feedback(){
+  const m = S.m1;
+  if(!m.done) return m.balE > 10 ? `<p class="muted">Teruskan menggosok… (${m.balE - 10} elektron sudah berpindah)</p>` : '';
+  const ok = m.pred === 0;
+  return `<div class="fb ${ok?'ok':'bad'}"><b>${ok?'Ramalan kamu tepat!':'Ramalan kamu berbeza dengan pemerhatian.'}</b>
+    <span>Elektron berpindah dari rambut ke belon. Proton tidak bergerak. Jumlah elektron kekal 20.</span></div>
+    ${discoverHTML(1)}
+    ${S.seg.nota ? `<div class="nota">
+      <h3>Kenapa dipanggil elektro<u>statik</u>?</h3>
+      <p><b>Statik</b> bermaksud pegun. Elektron yang berpindah <b>kekal</b> pada belon. Cas yang pegun ini dipanggil <b>cas elektrostatik</b>.</p>
+      <div class="nota-grid">
+        <div><span class="mono">Cas pegun</span><b>Elektrostatik</b><p>Contoh: belon bercas.</p></div>
+        <div><span class="mono">Cas mengalir sekejap</span><b>Nyahcas</b><p>Contoh: kejutan kecil, kilat.</p></div>
+        <div><span class="mono">Cas mengalir berterusan</span><b>Arus elektrik</b><p>Kamu akan belajar kemudian.</p></div>
+      </div>
+    </div>` : `<button class="btn ghost seg-next" type="button" id="openNota">Teruskan: kenapa dipanggil "statik"? ↓</button>`}`;
+}
+function humidMsg(){
+  const m = S.m1;
+  if(!m.humid && !m.humidSeen) return '';
+  if(m.balE === 10 && m.hairE === 10) return `<div class="fb info"><b>Cas sudah hilang.</b><span>Elektron bocor ke wap air di udara. Sebab itu eksperimen cas selalu gagal pada hari lembap.</span></div>`;
+  return `<p class="muted">Perhatikan nombor "Bocor ke udara"…</p>`;
+}
+let busy = false;
+function rub(){
+  const m = S.m1; if(busy || m.pred == null || m.hairE <= 4) return;
+  SFX.play('rub');
+  const from = hairE(m.hairE).at(-1), to = balE(m.balE + 1).at(-1);
+  const finish = () => {
+    m.hairE--; m.balE++; busy = false;
+    if(m.balE - 10 >= 4 && !m.done){ m.done = true; award('m1', 20, 'Rahsia ditemui: Peraturan Emas 1'); }
+    save(); updM1();
+    $('#humidBox').hidden = !S.seg.nota;
+    $('#m1fb').innerHTML = m1Feedback(); refreshNext();
+    const tr = $('.tracker'); if(tr) tr.outerHTML = trackerHTML();
+    $('#gosok').disabled = m.hairE <= 4;
+  };
+  const bal = $('#bal'); if(bal && !RM){ bal.classList.remove('wiggle'); void bal.getBBox(); bal.classList.add('wiggle'); }
+  if(RM){ finish(); return; }
+  busy = true;
+  const fly = $('#fly'); fly.innerHTML = nSym(from[0], from[1], 8);
+  const g = fly.firstElementChild, t0 = performance.now(), D = 450;
+  const step = now => {
+    const k = Math.min(1, (now - t0) / D), e = k < .5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2)/2;
+    const x = from[0] + (to[0]-from[0])*e, y = from[1] + (to[1]-from[1])*e - Math.sin(Math.PI*k)*40;
+    g.setAttribute('transform', `translate(${(x-from[0]).toFixed(1)} ${(y-from[1]).toFixed(1)})`);
+    if(k < 1) requestAnimationFrame(step); else { fly.innerHTML = ''; finish(); }
+  };
+  requestAnimationFrame(step);
+}
+function updM1(){ const s = $('#m1sim'); if(s) s.innerHTML = m1SVG(); const st = $('#m1stat'); if(st) st.innerHTML = m1Stats(); }
+function startHumid(){
+  stopHumid();
+  humidTimer = setInterval(() => {
+    const m = S.m1; let ch = false;
+    if(m.balE > 10){ m.balE--; m.air++; ch = true; }
+    else if(m.hairE < 10 && m.air > 0){ m.hairE++; m.air--; ch = true; }
+    if(ch){ m.humidSeen = true; save(); updM1(); const f = $('#humidFb'); if(f) f.innerHTML = humidMsg(); if(m.balE === 10 && m.hairE === 10) { award('lembap', 5, 'Misteri hari lembap'); updateMisi(); } }
+  }, 1100);
+}
+function objSVG(label, c, x){
+  const fill = c==='neg'?'var(--neg)':c==='pos'?'var(--pos)':'var(--muted)';
+  const sym = c==='neg'?'−':c==='pos'?'+':'0';
+  return `<g class="mv" data-side="${x<100?'l':'r'}"><circle cx="${x}" cy="56" r="30" fill="var(--card)" stroke="${fill}" stroke-width="2.5"/>
+    <text x="${x}" y="64" text-anchor="middle" font-size="24" font-weight="700" fill="${fill}">${sym}</text>
+    <text x="${x}" y="108" text-anchor="middle" font-family="var(--f-display)" font-weight="600" font-size="14" fill="var(--ink)">${label}</text></g>`;
+}
+function scnHTML(sc){
+  const st = S.m2[sc.id];
+  return `<div class="scn" id="scn${sc.id}">
+    <span class="mono">Situasi ${sc.id}</span>
+    <svg viewBox="0 0 200 120" role="img" aria-label="${sc.a} dan ${sc.b}">${objSVG(sc.a, sc.ac, 50)}${objSVG(sc.b, sc.bc, 150)}</svg>
+    <div class="chip-row">${['tarik','tolak'].map(v => `<button type="button" class="chip ${st.p===v?'on':''}" data-pr="${sc.id}" data-v="${v}" ${st.t?'disabled':''}>${v==='tarik'?'Tarik':'Tolak'}</button>`).join('')}</div>
+    <button class="btn ghost" type="button" id="uji${sc.id}" ${st.p&&!st.t?'':'disabled'}>Uji</button>
+    <div class="scnfb" aria-live="polite">${st.t ? scnFb(sc) : ''}</div></div>`;
+}
+function scnFb(sc){ const st = S.m2[sc.id], ok = st.p === sc.ans; return `<div class="fb ${ok?'ok':'bad'}"><b>${sc.ans==='tarik'?'Saling menarik.':'Saling menolak.'} ${ok?'Ramalan tepat.':''}</b><span>${esc(sc.why)}</span></div>`; }
+function refreshScn(sc){ const el = $(`#scn${sc.id}`); el.outerHTML = scnHTML(sc); const n = $(`#scn${sc.id}`);
+  $$(`[data-pr="${sc.id}"]`, n).forEach(b => b.onclick = () => { if(S.m2[sc.id].t) return; S.m2[sc.id].p = b.dataset.v; save(); refreshScn(sc); });
+  $(`#uji${sc.id}`, n).onclick = () => testScn(sc); return n; }
+function testScn(sc){
+  const st = S.m2[sc.id]; if(!st.p || st.t) return; st.t = true; save();
+  const n = refreshScn(sc);
+  const d = sc.ans === 'tarik' ? 1 : -1;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    $$('.mv', n).forEach(g => { const l = g.dataset.side === 'l'; g.style.transform = `translateX(${(l ? 1 : -1) * d * (d>0?14:18)}px)`; });
+  }));
+  if(st.p === sc.ans) award('m2'+sc.id, 5, 'Ramalan tepat'); else award('m2'+sc.id, 3, 'Ujian selesai');
+  refreshNext();
+}
+
+/* ====== 05 TERANG ====== */
+function rTerang(){
+  const m = S.m1, okCount = M2.filter(sc => S.m2[sc.id].p === sc.ans).length;
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Babak 05 · Terang</span><h2>Bandingkan dan terangkan</h2>
+    <p class="muted">Bandingkan ramalan dengan apa yang kamu lihat.</p></div>
+    <div class="tbl"><table><thead><tr><th>Misi</th><th>Ramalan kami</th><th>Pemerhatian</th></tr></thead><tbody>
+      <tr><td>Video: kenapa jurai mengembang?</td><td>${S.vid!=null?esc(VID_OPT[S.vid]):'–'}</td><td>${esc(VID_OPT[VID_OK])}</td></tr>
+      <tr><td>Gosok belon</td><td>${m.pred!=null?esc(M1_PRED[m.pred]):'–'}</td><td>${esc(M1_PRED[0])}</td></tr>
+      ${M2.map(sc => `<tr><td>Situasi ${sc.id}</td><td>${S.m2[sc.id].p?esc(S.m2[sc.id].p):'–'}</td><td>${sc.ans}</td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="muted">Ramalan tepat dalam Misi 2: <b>${okCount} / 3</b></p>
+    <div class="block sub"><h3>Bina rantai penerangan</h3>
+      <p class="muted">Tekan ayat mengikut susunan, dari punca hingga kesan.</p>
+      <div class="chain-pool">${CHAIN_SHOW.map(i => `<button type="button" class="chain-item" data-c="${i}" ${S.chain.includes(i)||S.chainOk?'disabled':''}>${esc(CHAIN[i])}</button>`).join('')}</div>
+      <ol class="chain-built">${S.chain.map(i => `<li>${esc(CHAIN[i])}</li>`).join('')}</ol>
+      <div class="btns">${S.chainOk?'':`<button class="btn ghost" type="button" id="chainReset" ${S.chain.length?'':'disabled'}>Padam susunan</button>`}</div>
+      ${S.chainOk ? '' : hintHTML('chain')}
+      <div aria-live="polite">${chainFb()}</div></div>
+    ${!S.chainOk ? lockStep('Langkah seterusnya dibuka selepas rantai lengkap.') : `<div class="block sub"><h3>Terangkan kepada pasangan</h3>
+      <div class="starter"><p><b>Jurai plastik mengembang kerana…</b></p><p class="muted">Guna: elektron, berpindah, cas sama, menolak.</p></div></div>
+    <div class="block sub">
+      <h3>Kartun konsep: siapa yang betul?</h3>
+      <p>Belon yang digosok melekat pada dinding. Siapa betul? Bincang, kemudian pilih.</p>
+      <div class="cc">${CC.map((k, i) => `<label class="cc-cell"><p class="cc-say">${esc(k.t)}</p>${kid(k)}<span class="cc-name"><input type="radio" name="cc" value="${i}" ${S.cc===i?'checked':''} ${S.reached>=5?'disabled':''}> ${esc(k.n)}</span></label>`).join('')}</div>
+      <div aria-live="polite" id="ccInfo">${ccInfo()}</div>
+    </div>`}
+    ${S.cc == null ? '' : `<div class="video-panel">
+      <h3>Dinding kelas: kongsi dan komen</h3>
+      <ol style="margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px">
+        <li><b>Siar:</b> <i>"Kami setuju dengan … kerana …"</i> (nama pertama sahaja)</li>
+        <li><b>Baca</b> siaran pasangan lain.</li>
+        <li><b>Komen</b> dua siaran: <b>2 Bintang 1 Harapan</b>.</li>
+      </ol>
+      <div class="starter" style="background:var(--card)">
+        <p><b>★</b> Kamu betul bahawa…</p>
+        <p><b>★</b> Saya suka perkataan…</p>
+        <p><b>?</b> Lebih lengkap jika…</p>
+      </div>
+      ${DINDING.url ? `<a class="btn cta" href="${esc(DINDING.url)}" target="_blank" rel="noopener"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H9l-5 4z" fill="#fff" stroke="#1A1A2E" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 12h5" stroke="#1A1A2E" stroke-width="2" stroke-linecap="round"/></svg><span>Klik di sini: Buka Padlet</span><span aria-hidden="true">↗</span></a><p class="muted" style="font-size:.85rem;text-align:center">Dibuka dalam tab baharu.</p>` : `<p class="muted" style="font-size:.9rem">Guru akan memberi pautan dinding kelas.</p>`}
+      <label class="toggle"><input type="checkbox" id="dinding" ${S.dinding?'checked disabled':''} ${S.cc==null?'disabled':''}> Kami sudah menyiarkan dan memberi dua komen</label>
+      <div aria-live="polite">${S.dinding ? `<div class="fb info"><b>Terima kasih, detektif!</b><span>Jawapan dibincangkan bersama guru di Muzium Sains.</span></div>` : ''}</div>
+    </div>`}
+    ${footer()}</section>`;
+  $$('[data-c]').forEach(b => b.onclick = () => {
+    const i = +b.dataset.c; if(S.chain.includes(i) || S.chainOk) return;
+    S.chain.push(i);
+    if(S.chain.length === CHAIN.length){
+      S.chainTry++;
+      if(S.chain.every((v, k) => v === k)){ S.chainOk = true; award('terang', 15, 'Rantai penerangan lengkap'); }
+    }
+    save(); rTerang(); bindFooter(); renderBar();
+  });
+  const r = $('#chainReset'); if(r) r.onclick = () => { S.chain = []; save(); rTerang(); bindFooter(); };
+  $$('input[name="cc"]').forEach(x => x.addEventListener('change', () => { if(S.reached >= 5) return; const first = S.cc == null; S.cc = +x.value; award('cc', 5, 'Pendapat dipilih'); save(); if(first){ rTerang(); bindFooter(); } else { const ci = $('#ccInfo'); if(ci) ci.innerHTML = ccInfo(); } }));
+  const dd = $('#dinding'); if(dd) dd.onchange = () => { if(!dd.checked || S.cc == null) return; S.dinding = true; award('dinding', 10, 'Komen rakan sebaya'); save(); rTerang(); bindFooter(); renderBar(); const p = $('#dinding'); if(p) p.closest('.video-panel').scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'center' }); };
+}
+function ccRevealHTML(){
+  if(S.cc == null) return '';
+  const ok = S.cc === CC_OK;
+  if(!S.ccUnlock) return `<div class="block reveal locked-panel">
+    <h3>Jawapan kartun konsep: siapa yang betul?</h3>
+    <div class="lock-msg"><svg width="34" height="34" viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="12" width="18" height="13" rx="2" fill="#9CA3AF" stroke="#1A1A2E" stroke-width="2.2"/><path d="M9 12V8a5 5 0 0 1 10 0v4" fill="none" stroke="#1A1A2E" stroke-width="2.2"/></svg><p>Pilihan kamu: <b>${esc(CC[S.cc].n)}</b>. <b>Tunggu perbincangan bersama guru.</b> Sementara itu, teruskan kes di bawah.</p></div>
+    <div class="kod-row"><label class="field" for="ccKod">Kod daripada guru<input type="text" id="ccKod" maxlength="20" autocomplete="off" placeholder="Taip kod di sini"></label><button class="btn" type="button" id="ccBuka">Buka jawapan</button></div>
+    <p class="muted" id="ccErr" aria-live="polite" style="font-size:.9rem"></p>
+  </div>`;
+  if(ok) award('ccOk', 5, 'Pilihan kartun konsep tepat');
+  return `<div class="block reveal">
+    <h3>Jawapan kartun konsep: siapa yang betul?</h3>
+    <div class="cc">${CC.map((k, i) => `<div class="cc-cell ${i===CC_OK?'right':(S.cc===i?'wrong':'')}"><p class="cc-say">${esc(k.t)}</p>${kid(k)}<span class="cc-name">${i===CC_OK?'✓ ':''}${esc(k.n)}${S.cc===i?' <small>(pilihan kamu)</small>':''}</span></div>`).join('')}</div>
+    <div class="fb ${ok?'ok':'bad'}"><b>${ok?'Tepat! Mei Ling yang betul.':'Mei Ling yang betul.'}</b><span>${CC.filter((k, i) => i!==CC_OK).map(k => `${esc(k.n)}: ${esc(k.w)}`).join(' ')} Adakah komen rakan kamu di Padlet betul?</span></div>
+  </div>`;
+}
+function ccInfo(){
+  if(S.cc == null) return '';
+  return `<div class="fb info"><b>Pilihan kamu: ${esc(CC[S.cc].n)}.</b><span>Siarkan di Padlet: "Kami setuju dengan ${esc(CC[S.cc].n)} kerana …". Jawapan dibincangkan bersama guru di Muzium Sains.</span></div>`;
+}
+function chainFb(){
+  if(S.chainOk) return `<div class="fb ok"><b>Rantai lengkap.</b><span>Geseran → elektron berpindah → bahan bercas → tarik atau tolak.</span></div>`;
+  if(S.chain.length === CHAIN.length) return `<div class="fb bad"><b>Susunan belum tepat.</b><span>Apa berlaku dahulu sebelum belon bercas? Padam dan cuba lagi.</span></div>`;
+  return '';
+}
+
+/* ====== 06 SELESAIKAN ====== */
+function kilatSVG(){
+  const k = S.kilat, n = k.q * 2;
+  const negs = gridPts(112, 82, 6, 26, 0, Math.min(n, 6)).concat(gridPts(125, 100, 4, 26, 0, Math.max(0, Math.min(n - 6, 4))));
+  const poss = gridPts(70, 238, 8, 28, 0, n > 0 ? Math.min(n, 8) : 0);
+  const ink = '#1A1A2E';
+  const callout = (t, c) => `<g transform="rotate(-5 80 168)"><rect x="14" y="148" width="150" height="42" rx="6" fill="${c}" stroke="${ink}" stroke-width="3"/><text x="89" y="178" text-anchor="middle" font-family="Bangers, 'Comic Sans MS', sans-serif" font-size="26" letter-spacing="1" fill="#fff" stroke="${ink}" stroke-width="1">${t}</text></g>`;
+  let bolt = '', after = '';
+  if(k.last === 'free'){
+    bolt = `<path class="flash" d="M206 108 L222 122 L212 126 L244 136 L234 140 L268 132" fill="none" stroke="var(--spark)" stroke-width="6" stroke-linejoin="round"/>`;
+    after = `<g class="flash"><path d="M270 140 L270 226" stroke="#EE3344" stroke-width="4" stroke-dasharray="6 5"/><path d="M246 152 q4 -22 14 -28 q-2 12 6 16 q4 -12 12 -16 q-2 16 8 28 z" fill="#FF7A1A" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/><path d="M256 152 q2 -10 8 -14 q0 8 6 10 q2 -6 6 -8 q0 8 4 12 z" fill="#FFD23F"/><path d="M252 166 l8 12 l-6 9 l10 14 l-4 10" fill="none" stroke="${ink}" stroke-width="2.5"/></g>${callout('BAHAYA!', '#EE3344')}`;
+  }
+  if(k.last === 'rod'){
+    bolt = `<path class="flash" d="M214 100 L236 112 L228 116 L262 110 L254 116 L298 106" fill="none" stroke="var(--spark)" stroke-width="6" stroke-linejoin="round"/>`;
+    after = `<path d="M300 106 L300 150 L316 150 L316 232" fill="none" stroke="var(--spark)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M300 106 L300 150 L316 150 L316 232" fill="none" stroke="${ink}" stroke-width="2.5"/>${[[316,172],[316,198],[316,224]].map(([x,y]) => nSym(x,y,7)).join('')}<path d="M334 180 v22 l-6 -7 m6 7 l6 -7" stroke="${ink}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="316" cy="240" rx="24" ry="6" fill="var(--spark)" opacity=".8"/>${callout('SELAMAT!', '#139E5B')}`;
+  }
+  return `<svg viewBox="0 0 360 270" role="img" aria-label="Simulasi kejadian kilat, cas pada awan ${k.q} daripada 5">
+    <path d="M70 92 q-30 0 -30 -28 q0 -30 34 -30 q10 -24 44 -22 q20 -18 52 -6 q30 -16 58 6 q40 -2 44 30 q30 6 22 34 q-6 18 -30 16 z" fill="var(--soft)" stroke="var(--line)" stroke-width="2"/>
+    <text x="180" y="62" text-anchor="middle" font-family="var(--f-display)" font-weight="600" font-size="14" fill="var(--ink)">Awan ribut</text>
+    ${negs.map(([x,y]) => nSym(x,y,8)).join('')}
+    <rect x="240" y="150" width="60" height="78" fill="${k.last==='free'?'#FFD9D0':'var(--card)'}" stroke="var(--line)" stroke-width="2"/>
+    <path d="M232 152 L270 128 L308 152 z" fill="${k.last==='free'?'#FFD9D0':'var(--card)'}" stroke="var(--line)" stroke-width="2"/>
+    <text x="270" y="196" text-anchor="middle" font-size="11" font-family="var(--f-mono)" fill="var(--muted)">RUMAH</text>
+    ${k.rod ? `<line x1="300" y1="106" x2="300" y2="150" stroke="var(--ink)" stroke-width="3"/><path d="M300 150 L316 150 L316 230" fill="none" stroke="var(--ink)" stroke-width="2" ${k.last==='rod'?'class="flash"':''}/><text x="322" y="120" font-size="10" font-family="var(--f-mono)" fill="var(--muted)">ROD</text>` : ''}
+    ${bolt}
+    <rect x="0" y="228" width="360" height="42" fill="var(--soft)"/>
+    <text x="16" y="262" font-size="11" font-family="var(--f-mono)" fill="var(--muted)">BUMI</text>
+    ${poss.map(([x,y]) => pSym(x,y,8)).join('')}
+    ${after}
+  </svg>`;
+}
+function kilatFb(){
+  const k = S.kilat;
+  if(k.last === 'free') return `<div class="fb bad"><b>Bahaya! Kilat menyambar bumbung rumah.</b><span>Kilat ialah <b>nyahcas</b> yang sangat besar. Cas mengalir <b>melalui rumah</b> (garis merah). Sekarang pasang konduktor kilat.</span></div>`;
+  if(k.last === 'rod') return `<div class="fb ok"><b>Selamat! Kilat menyambar konduktor kilat.</b><span>Kilat <b>tetap menyambar</b>, tetapi cas mengalir melalui kabel (garis kuning) ke Bumi. Rumah selamat.</span></div>`;
+  return k.q > 0 ? `<p class="muted">Cas pada awan: ${k.q} / 5.</p>` : '';
+}
+function rSelesaikan(){
+  const k = S.kilat, sub = S.sub || 'vdg';
+  const T = { vdg:'Kes rambut tegak', misteri:'Misteri Stesen Minyak', kilat:'Kilat dan konduktor kilat', kuiz:'Kuiz Cabaran Detektif' };
+  let body = '';
+  if(sub === 'vdg') body = `${ccRevealHTML()}
+    <div class="video-panel">
+      <h3>Kes kedua: rambut tegak</h3>
+      <p>Seorang murid menyentuh kubah penjana Van de Graaff. Perhatikan rambutnya.</p>
+      ${videoCard(VIDEO_VDG, 'vdg')}
+      <p style="font-weight:700">Mengapa setiap helai rambut menjauhi satu sama lain?</p>
+      ${S.vdg == null ? hintHTML('vdg') : ''}
+      <div class="opts">${VDG_OPT.map((o, j) => `<label class="opt ${S.vdg!=null ? (j===0?'right':(S.vdg===j?'wrong':'')) : ''}"><input type="radio" name="vdg" value="${j}" ${S.vdg===j?'checked':''} ${S.vdg!=null?'disabled':''}><span>${esc(o)}</span></label>`).join('')}</div>
+      ${S.vdg!=null ? `<div class="fb ${S.vdg===0?'ok':'bad'}"><b>${S.vdg===0?'Tepat!':'Belum tepat.'}</b><span>Setiap helai rambut mendapat cas yang sama, jadi saling menolak. Penjana ini juga boleh menghasilkan percikan seperti kilat kecil.</span></div>` : ''}
+      <p class="muted" style="font-size:.85rem">Video: ${esc(VIDEO_VDG.sumber)}.</p>
+    </div>`;
+  if(sub === 'misteri') body = misteriHTML();
+  if(sub === 'kilat') body = `<div class="block sub"><h3>Simulasi kilat</h3>
+      <div class="sim" id="kilatSim">${kilatSVG()}</div>
+      <div class="kbtns">
+        <button class="kbtn cas" type="button" id="cas">
+          <svg width="52" height="40" viewBox="0 0 52 40" aria-hidden="true"><path d="M12 32 q-10 0 -10 -9 q0 -9 10 -9 q3 -10 14 -10 q11 0 14 10 q10 0 10 9 q0 9 -10 9 z" fill="#fff" stroke="#1A1A2E" stroke-width="3" stroke-linejoin="round"/><circle cx="26" cy="22" r="8" fill="#1F63F2" stroke="#1A1A2E" stroke-width="2"/><path d="M22 22 h8" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
+          <span><b>Tambah cas pada awan</b><small>Cas: ${k.q} / 5 · tekan sehingga kilat menyambar</small></span>
+        </button>
+        <button class="kbtn rod ${k.rod?'on':''}" type="button" id="rod" aria-pressed="${k.rod}">
+          <svg width="40" height="44" viewBox="0 0 40 44" aria-hidden="true"><path d="M8 42 V22 L20 12 L32 22 V42 Z" fill="#fff" stroke="#1A1A2E" stroke-width="3" stroke-linejoin="round"/><path d="M32 26 V4" stroke="#1A1A2E" stroke-width="3.5" stroke-linecap="round"/><path d="M32 4 l-3 5 h6 z" fill="#FFD23F" stroke="#1A1A2E" stroke-width="1.5"/></svg>
+          <span><b>${k.rod?'Tanggalkan':'Pasang'} konduktor kilat</b><small>Status: ${k.rod?'TERPASANG':'TIADA KONDUKTOR'}</small></span>
+          <span class="sw" aria-hidden="true"><i></i></span>
+        </button>
+      </div>
+      <p class="muted" style="font-size:.92rem">Geseran dalam awan menjadikan dasar awan bercas negatif.</p>
+      <div id="kilatFb" aria-live="polite">${kilatFb()}</div>
+    </div>`;
+  if(sub === 'kuiz') body = `<div class="block sub" id="kuizBox">
+      <p>Selesaikan 5 fail kes bersama pasangan. Di akhir kuiz, tekan <b>Hantar keputusan kepada guru</b>. Pangkat dalam sijil kamu ditentukan oleh kuiz ini.</p>
+      ${kuizCard('Buka Kuiz Cabaran Detektif')}
+      <label class="toggle"><input type="checkbox" id="kuizDone" ${S.kuiz?'checked disabled':''}> Kami sudah menyelesaikan kuiz dan menghantar keputusan</label>
+    </div>`;
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Selesaikan</span><h2>${T[sub]}</h2>
+    ${sub === 'kuiz' ? '' : '<p class="muted">Guna dua peraturan emas untuk menyelesaikan kes sebenar.</p>'}</div>
+    ${body}
+    ${footer()}</section>`;
+  const again = () => { rSelesaikan(); bindFooter(); renderBar(); };
+  const casBtn = $('#cas'); if(casBtn) casBtn.onclick = () => {
+    const kk = S.kilat; kk.last = null; kk.q++;
+    if(kk.q >= 5){ kk.q = 0; kk.last = kk.rod ? 'rod' : 'free'; if(kk.rod) kk.hitRod = true; else kk.hitFree = true; SFX.play('zap'); } else SFX.play('charge', kk.q);
+    if(kk.hitFree && kk.hitRod) award('kilat', 10, 'Misteri kilat diselesaikan');
+    save(); again();
+  };
+  $$('input[name="misteri"]').forEach(r => r.addEventListener('change', () => { if(S.misteri != null) return; S.misteri = +r.value; award('misteri', S.misteri === MISTERI.a ? 15 : 5, 'Misteri stesen minyak'); save(); again(); const m = $('#misteriBox .fb'); if(m) m.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'center' }); }));
+  const kd = $('#kuizDone'); if(kd) kd.onchange = () => { if(!kd.checked) return; S.kuiz = true; award('kuiz', 15, 'Kuiz Cabaran selesai'); save(); again(); };
+  const cb = $('#ccBuka'); if(cb){ const tryKod = () => { const v = ($('#ccKod').value || '').trim().toUpperCase(); if(v && v === KOD_GURU.toUpperCase()){ S.ccUnlock = true; award('ccDisc', 5, 'Perbincangan kelas'); save(); again(); SFX.play('unlock'); const r = $('.reveal'); if(r) r.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'start' }); } else { SFX.play('lock'); $('#ccErr').textContent = 'Kod tidak tepat. Tunggu guru memberikan kod selepas perbincangan.'; } }; cb.onclick = tryKod; $('#ccKod').addEventListener('keydown', ev => { if(ev.key === 'Enter') tryKod(); }); }
+  const rodBtn = $('#rod'); if(rodBtn) rodBtn.onclick = () => { S.kilat.rod = !S.kilat.rod; S.kilat.last = null; save(); again(); };
+  $$('input[name="vdg"]').forEach(r => r.addEventListener('change', () => { if(S.vdg != null) return; S.vdg = +r.value; if(S.vdg === 0) award('vdg', 5, 'Misteri rambut tegak'); save(); again(); }));
+}
+
+/* ====== BONUS: DEPOH LORI MINYAK ====== */
+const DEPOH = [
+  { t:'Lori tangki minyak selalunya ada rantai atau jalur yang mencecah jalan. Kenapa?', o:['Supaya cas pada badan lori mengalir ke Bumi','Supaya lori lebih berat dan stabil','Sebagai hiasan supaya lori mudah dilihat'], a:0, e:'Geseran dengan udara dan minyak yang bergerak menjadikan lori bercas. Rantai memberi laluan untuk cas mengalir ke Bumi, jadi tiada percikan dekat minyak.' },
+  { t:'Apakah persamaan rantai lori ini dengan konduktor kilat?', o:['Kedua-duanya memberi cas laluan selamat ke Bumi','Kedua-duanya menghalang cas daripada terbentuk','Kedua-duanya mencipta elektron baharu'], a:0, e:'Kedua-duanya tidak menghalang cas. Ia memberi laluan selamat supaya cas mengalir ke Bumi.' }
+];
+function rDepoh(){
+  const done = DEPOH.filter((q, i) => S.depoh[i] != null).length;
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Bonus</span><h2>Cabaran Pakar</h2>
+    <p class="muted">Pilihan sahaja. Guna apa yang kamu tahu tentang nyahcas.</p></div>
+    ${DEPOH.map((q, i) => { if(i > 0 && S.depoh[i-1] == null) return ''; const a = S.depoh[i], d = a != null; return `<fieldset class="q" style="border:0;padding:0;margin:0"><legend class="qn" style="padding:0">SOALAN ${i+1} / ${DEPOH.length}</legend><p style="font-weight:700">${esc(q.t)}</p>${d ? '' : hintHTML('depoh'+i)}<div class="opts">${q.o.map((o, j) => `<label class="opt ${d ? (j===q.a?'right':(a===j?'wrong':'')) : ''}"><input type="radio" name="depoh${i}" value="${j}" ${a===j?'checked':''} ${d?'disabled':''}><span>${esc(o)}</span></label>`).join('')}</div>${d ? `<div class="fb ${a===q.a?'ok':'bad'}"><b>${a===q.a?'Tepat, pakar!':'Belum tepat.'}</b><span>${esc(q.e)}</span></div>` : ''}</fieldset>`; }).join('')}
+    ${done === DEPOH.length ? '<p class="misi-ok">Cabaran Pakar selesai!</p>' : ''}
+    ${footer()}</section>`;
+  DEPOH.forEach((q, i) => $$(`input[name="depoh${i}"]`).forEach(r => r.addEventListener('change', () => {
+    if(S.depoh[i] != null) return; S.depoh[i] = +r.value; if(S.depoh[i] === q.a) award('depoh'+i, 10, 'Cabaran Pakar'); save(); rDepoh(); bindFooter(); renderBar();
+  })));
+}
+
+function kesHTML(c){
+  const a = S.kes[c.id], done = a != null;
+  return `<fieldset class="scn" style="margin:0"><legend class="mono" style="padding:0 4px">${esc(c.t)}</legend>
+    <p>${esc(c.s)}</p>
+    <div class="opts">${c.o.map((o, j) => `<label class="opt ${done ? (j===c.a?'right':(a===j?'wrong':'')) : ''}"><input type="radio" name="kes-${c.id}" value="${j}" ${a===j?'checked':''} ${done?'disabled':''}><span>${esc(o)}</span></label>`).join('')}</div>
+    ${done ? `<div class="fb ${a===c.a?'ok':'bad'}"><b>${a===c.a?'Tepat.':'Jawapan terbaik: '+esc(c.o[c.a])+'.'}</b><span>${esc(c.e)}</span></div>` : ''}</fieldset>`;
+}
+
+/* ====== 07 KUASAI ====== */
+function rKuasai(){
+  const all = PASCA.every((q, i) => S.pasca[i] != null);
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Babak 07 · Kuasai · Ujian pasca</span><h2>Buktikan kefahaman kamu</h2>
+    <p class="muted">Idea sama seperti ujian pra, situasi berbeza.</p></div>
+    ${quizHTML(PASCA, S.pasca, S.pascaDone, S.pascaDone, 'pasca')}
+    ${S.pascaDone ? compareHTML() : `<div class="btns"><button class="btn" type="button" id="hantarPasca" ${all?'':'disabled'}>Hantar jawapan</button></div>`}
+    ${footer()}</section>`;
+  if(!S.pascaDone){
+    bindQuiz(PASCA, S.pasca, 'pasca', () => { $('#hantarPasca').disabled = !PASCA.every((q, i) => S.pasca[i] != null); });
+    $('#hantarPasca').onclick = () => { S.pascaDone = true; const sc = score(PASCA, S.pasca); S.got.pascaPts || (S.got.pascaPts = true, S.xp += sc * 5); toast(`+${sc*5} XP · ${sc} / 5 betul`); save(); render(); };
+  }
+}
+function compareHTML(){
+  const row = (lbl, q, ans) => { const ok = ans === q.a; return `<div class="cmp-row ${ok?'ok':'no'}"><span class="mono">${lbl}</span><p><b class="${ok?'y':'x'}">${ok?'✓ Tepat':'✗ Belum tepat'}:</b> ${ans != null ? esc(q.o[ans]) : '–'}</p>${ok ? '' : `<p class="cmp-fix">Jawapan betul: ${esc(q.o[q.a])}</p>`}</div>`; };
+  return `<div class="block sub"><h3>Dahulu dan sekarang</h3>
+    <p class="muted">Idea manakah yang sudah berubah?</p>
+    ${PRA.map((q, i) => `<div class="cmp"><p class="cmp-k">Idea ${i+1}: ${esc(KONSEP[q.k])}</p>${row('Dahulu', q, S.pra[i])}${row('Sekarang', PASCA[i], S.pasca[i])}</div>`).join('')}
+    <p class="cmp-total">Ujian pra <b>${score(PRA, S.pra)} / 5</b> → ujian pasca <b>${score(PASCA, S.pasca)} / 5</b></p></div>`;
+}
+
+/* ====== 08 SELESAI ====== */
+function tahap(){ const s = score(PASCA, S.pasca); return s === 5 ? 'Detektif Pakar' : s >= 3 ? 'Detektif' : 'Detektif Pelatih'; }
+function summaryText(){ return `Detektif Elektron\nAhli 1: ${S.nama}\nAhli 2: ${S.nama2 || '-'}\nKelas: ${S.kelas}\nSkor pra: ${score(PRA,S.pra)}/5\nSkor pasca: ${score(PASCA,S.pasca)}/5\nXP: ${S.xp}`; }
+function formLink(){
+  if(!FORM.url) return '';
+  const e = FORM.entry, p = new URLSearchParams({ usp:'pp_url' });
+  p.set(e.nama, S.nama); p.set(e.nama2, S.nama2 || ''); p.set(e.kelas, S.kelas); p.set(e.pra, score(PRA,S.pra)); p.set(e.pasca, score(PASCA,S.pasca)); p.set(e.xp, S.xp);
+  return FORM.url + '?' + p.toString();
+}
+function rSelesai(){
+  const pr = score(PRA, S.pra), ps = score(PASCA, S.pasca), link = formLink();
+  if(!S.got.win){ S.got.win = true; save(); setTimeout(() => SFX.play('win'), 200); }
+  $('#stage').innerHTML = `<section class="card">
+    <div class="card-head"><span class="mono">Babak 08 · Kes ditutup</span><p class="congrats">Tahniah, ${esc(greetNames())}!</p><h2>Pelakunya: elektron</h2>
+    <p class="muted">Elektron yang berpindah ialah punca semua kes hari ini.</p></div>
+    <div class="rules-mini"><b>Dua peraturan emas:</b> 1. Cas terhasil melalui <b>geseran</b>. 2. Hanya <b>elektron</b> yang berpindah.</div>
+    <div class="badge">
+      ${mascot()}
+      <dl><dt>Ahli 1</dt><dd>${esc(S.nama||'–')}</dd>${S.nama2 ? `<dt>Ahli 2</dt><dd>${esc(S.nama2)}</dd>` : ''}<dt>Kelas</dt><dd>${esc(S.kelas||'–')}</dd><dt>Ujian pra</dt><dd>${pr} / 5</dd><dt>Ujian pasca</dt><dd>${ps} / 5</dd><dt>XP</dt><dd>${S.xp}</dd><dt>Pangkat</dt><dd class="tahap">Ikut Kuiz Cabaran</dd></dl>
+    </div>
+    ${ps <= 2 ? `<div class="fb info"><b>Cadangan: ulang misi.</b><span>Lawat semula Makmal Detektif dan Pusat Sains Maya bersama guru.</span></div>` : ''}
+    <div class="block sub"><span class="mono">Soalan besar: terjawab</span>
+      <p class="q-besar">Bagaimanakah sesuatu yang tidak dapat kita lihat menerangkan fenomena yang kita alami setiap hari?</p>
+      <div class="answer-big"><b>Jawapan: ELEKTRON.</b> Ia tidak kelihatan, tetapi pemindahannya menerangkan jurai plastik, rambut tegak, belon melekat dan kilat.</div>
+    </div>
+    <div class="block sub"><span class="mono">Soalan siasatan hari ini</span>
+      <p class="q-topik">Sejauh manakah elektrostatik membantu atau membahayakan kehidupan harian kita?</p>
+      <div class="clues"><span class="mono">Petunjuk daripada siasatan kamu</span>
+        <div class="clue-grid">
+          <div class="clue help"><b>Membantu</b><ul><li>Konduktor kilat melindungi bangunan</li><li>Cat semburan bercas melekat sekata (Kuiz, Fail 5)</li><li>Kain antistatik mengurangkan habuk dan kejutan</li></ul></div>
+          <div class="clue harm"><b>Membahayakan</b><ul><li>Kebakaran di stesen minyak (Misteri utama)</li><li>Kilat menyambar rumah atau pokok</li><li>Kejutan kecil dan habuk pada skrin</li></ul></div>
+        </div></div>
+      ${S.awal.trim() ? `<div class="starter"><p class="mono">Jawapan awal kami</p><p>${esc(S.awal)}</p></div>` : ''}
+      <label class="field" for="akhir">Jawapan kami sekarang (contoh membantu dan membahayakan)</label>
+      <textarea id="akhir" placeholder="Elektrostatik membantu apabila… tetapi membahayakan apabila…">${esc(S.akhir)}</textarea>
+      <label class="field" for="refleksi">Refleksi: Dahulu kami fikir… Sekarang kami tahu…</label>
+      <textarea id="refleksi" placeholder="Dahulu kami fikir… Sekarang kami tahu…">${esc(S.refleksi)}</textarea></div>
+    <div class="block sub"><h3>Hantar keputusan kepada guru</h3>
+      ${link ? `<div class="btns"><a class="btn spark" href="${esc(link)}" target="_blank" rel="noopener">Hantar ke borang guru</a></div>` :
+        `<p class="muted">Salin ringkasan ini jika guru meminta.</p>`}
+      <div class="btns"><button class="btn ghost" type="button" id="salin">Salin ringkasan</button></div>
+      <pre id="ringkas" style="white-space:pre-wrap;font-family:var(--f-mono);font-size:.8rem;background:var(--soft);padding:12px;border-radius:10px;margin:0">${esc(summaryText())}</pre>
+      <p class="muted" style="font-size:.92rem">Sijil pangkat detektif akan diberi oleh guru berdasarkan Kuiz Cabaran.</p></div>
+    <div class="block sub"><h3>Misi di rumah: uji ingatan kamu</h3>
+      <p><b>Tiga hari lagi</b>, jawab semula kuiz tanpa nota. Adakah markah kamu kekal?</p>
+      ${kuizCard('Cuba semula kuiz')}
+      <p class="muted" style="font-size:.92rem">Mahu teroka lagi? Buka semula <a href="https://phet.colorado.edu/en/simulations/balloons-and-static-electricity" target="_blank" rel="noopener">makmal maya PhET</a>.</p></div>
+    ${footer()}</section>`;
+  $('#akhir').addEventListener('input', e => { S.akhir = e.target.value; if(S.akhir.trim().length > 20) award('akhir', 10, 'Soalan siasatan dijawab'); save(); updateMisi(); });
+  $('#refleksi').addEventListener('input', e => { S.refleksi = e.target.value; if(S.refleksi.trim().length > 20) award('refleksi', 10, 'Refleksi lengkap'); save(); updateMisi(); });
+  $('#salin').onclick = async () => {
+    try{ await navigator.clipboard.writeText(summaryText()); toast('Ringkasan disalin'); }
+    catch(e){ const r = document.createRange(); r.selectNodeContents($('#ringkas')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Pilih dan salin teks ini'); }
+  };
+}
+
+/* ====== MULA ====== */
+let resetArm = false;
+document.addEventListener('click', ev => {
+  if(ev.target.closest && ev.target.closest('#openNota')){ S.seg.nota = true; save(); const fb = $('#m1fb'); if(fb) fb.innerHTML = m1Feedback(); const hb = $('#humidBox'); if(hb) hb.hidden = false; }
+});
+function boot(data){
+  load();
+  $('#logo').innerHTML = mascot();
+  try{ document.documentElement.style.setProperty('--mascot', `url("data:image/svg+xml,${encodeURIComponent(mascot().replace(/class=""/, 'xmlns="http://www.w3.org/2000/svg"'))}")`); }catch(e){}
+  if(data && data.S) S = Object.assign(fresh(), data.S);
+  if(window.claude && window.claude.hot && window.claude.hot.snapshot){ try{ window.claude.hot.snapshot(() => ({ S })); }catch(e){} }
+  const rb = $('#reset');
+  rb.onclick = () => {
+    if(!resetArm){ resetArm = true; rb.textContent = 'Tekan sekali lagi untuk padam semua kemajuan'; setTimeout(() => { resetArm = false; rb.textContent = 'Mula semula dari awal'; }, 4000); return; }
+    stopHumid(); S = fresh(); sfxQuiet = true; resetArm = false; rb.textContent = 'Mula semula dari awal'; save(); render(); toast('Siasatan dimulakan semula');
+  };
+  new MutationObserver(fbScan).observe($('#stage'), { childList:true, subtree:true });
+  sfxQuiet = true; render();
+}
+if(window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(boot);
+else boot(window.claude && window.claude.hot && window.claude.hot.data || {});
+</script>
+
+</body>
+</html>
