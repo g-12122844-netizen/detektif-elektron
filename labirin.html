@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Labirin Elektron: Misi Ulang Kaji Detektif</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; background-color: #111; user-select: none; }
+        #game-canvas { display: block; width: 100vw; height: 100vh; }
+        
+        /* UI Utama */
+        #hud { position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.7); color: white; padding: 10px 20px; border-radius: 10px; font-size: 1.2rem; pointer-events: auto; border: 2px solid #555; }
+        #hud { z-index: 6; }
+        #btn-sound { z-index: 6; position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: 2px solid #555; padding: 10px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; pointer-events: auto; }
+        
+        /* Butang Interaksi */
+        #btn-periksa { position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); background: #ffcc00; color: #000; border: 4px solid #fff; padding: 15px 40px; font-size: 1.5rem; font-weight: bold; border-radius: 20px; cursor: pointer; display: none; pointer-events: auto; box-shadow: 0px 5px 15px rgba(0,0,0,0.5); z-index: 5; }
+        #btn-periksa:active { background: #e6b800; transform: translateX(-50%) scale(0.95); }
+
+        /* Dialog Soalan & Skrin Akhir */
+        #modal-overlay { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 10; pointer-events: auto; }
+        .modal-box { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; border: 5px solid #444; position: relative; }
+        .modal-title { font-size: 1.3rem; margin-bottom: 15px; font-weight: bold; color: #333; }
+        
+        .btn-option { display: block; width: 100%; margin: 10px 0; padding: 15px; font-size: 1.1rem; font-family: inherit; background: #eef; border: 2px solid #bcf; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+        .btn-option:hover { background: #ccf; }
+        
+        #feedback-text { margin-top: 20px; font-size: 1.1rem; font-weight: bold; min-height: 1.5rem; }
+        #btn-tutup-soalan, #btn-main-semula, #btn-kembali { margin-top: 15px; padding: 12px 25px; font-size: 1.1rem; font-weight: bold; border-radius: 10px; cursor: pointer; display: none; font-family: inherit; width: 100%; border: none; }
+        #btn-tutup-soalan { background: #4CAF50; color: white; }
+        
+        #btn-main-semula { background: #2196F3; color: white; display: block; margin-bottom: 10px; }
+        #btn-kembali { background: #ff9800; color: white; display: block; text-decoration: none; display: inline-block; box-sizing: border-box;}
+
+        /* Kawalan Telefon */
+        #mobile-controls { display: none; }
+        @media (hover: none) and (pointer: coarse) {
+            #mobile-controls { display: block; }
+        }
+        #joy-zone { position: absolute; bottom: 20px; left: 20px; width: 130px; height: 130px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; pointer-events: auto; }
+        #joy-knob { position: absolute; top: 40px; left: 40px; width: 50px; height: 50px; background: rgba(255,255,255,0.6); border-radius: 50%; pointer-events: none; }
+        #start-box h2 { margin-top: 0; color: #1F63F2; }
+        #btn-mula { margin-top: 10px; padding: 14px 25px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; font-family: inherit; width: 100%; border: none; background: #ffcc00; color: #000; }
+        #cam-zone { position: absolute; top: 0; right: 0; width: 50vw; height: 100vh; pointer-events: auto; touch-action: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Antara Muka Permainan -->
+    <div id="hud">Fail Kes: <span id="score-display">0</span> / 8</div>
+    <button id="btn-sound">🔊 Bunyi: ON</button>
+    <button id="btn-periksa">PERIKSA</button>
+
+    <!-- Kawalan Telefon -->
+    <div id="mobile-controls">
+        <div id="joy-zone"><div id="joy-knob"></div></div>
+        <div id="cam-zone"></div>
+    </div>
+
+    <!-- Modal Dialog (Soalan & Penamat) -->
+    <div id="modal-overlay" style="display:flex;">
+        <!-- Kotak Mula -->
+        <div id="start-box" class="modal-box">
+            <h2>LABIRIN ELEKTRON</h2>
+            <p>Cari <b>8 kotak kuning bercahaya</b> dalam labirin. Dekati kotak dan tekan <b>PERIKSA</b> untuk menjawab soalan.</p>
+            <p style="font-size:0.95rem;text-align:left;"><b>Komputer:</b> WASD atau anak panah untuk bergerak, seret tetikus untuk pusing.<br><b>Telefon:</b> joystick kiri untuk bergerak, leret skrin kanan untuk pusing.</p>
+            <button id="btn-mula">MULA MISI</button>
+        </div>
+        <!-- Kotak Soalan -->
+        <div id="soalan-box" class="modal-box" style="display:none;">
+            <div id="q-text" class="modal-title">Soalan di sini</div>
+            <div id="options-container"></div>
+            <div id="feedback-text"></div>
+            <button id="btn-tutup-soalan">Teruskan Memburu</button>
+        </div>
+        
+        <!-- Kotak Tamat -->
+        <div id="end-box" class="modal-box" style="display:none;">
+            <h2 style="color: #4CAF50; margin-top:0;">KES DITUTUP!</h2>
+            <p>Tahniah, Detektif!</p>
+            <p><strong>Markah Cubaan Pertama: <span id="first-try-score"></span> / 8</strong></p>
+            <hr>
+            <p style="font-size: 0.95rem; text-align: left;">
+                <strong>Ringkasan Kes:</strong><br>
+                1. Peraturan Emas 1: Cas dihasilkan melalui geseran.<br>
+                2. Peraturan Emas 2: Hanya elektron (cas negatif) yang berpindah.
+            </p>
+            <button id="btn-main-semula" onclick="location.reload()">Main Semula</button>
+            <a href="index.html" id="btn-kembali">Kembali ke Bandar Elektron</a>
+        </div>
+    </div>
+
+    <!-- Skrip Teras Three.js dari CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // --- 1. DATA PEMBELAJARAN ---
+        const questionsData = [
+            { q: "Belon digosok pada rambut. Apakah yang menghasilkan cas?", opt: ["Geseran", "Cahaya", "Angin"], ans: 0, fCorrect: "Peraturan Emas 1: Cas dihasilkan melalui geseran.", fWrong: "Peraturan Emas 1: Cas dihasilkan melalui geseran." },
+            { q: "Semasa dua bahan bergeser, zarah apakah yang berpindah?", opt: ["Proton", "Elektron", "Neutron"], ans: 1, fCorrect: "Peraturan Emas 2: Hanya elektron yang berpindah. Proton tidak bergerak.", fWrong: "Peraturan Emas 2: Hanya elektron yang berpindah. Proton tidak bergerak." },
+            { q: "Sebuah objek ada 6 proton dan 8 elektron. Objek ini bercas...", opt: ["positif", "negatif", "neutral"], ans: 1, fCorrect: "Elektron lebih banyak daripada proton, jadi ia bercas negatif.", fWrong: "Kira betul-betul. Elektron lebih banyak daripada proton, jadi ia bercas negatif." },
+            { q: "Rod politena menerima elektron daripada kain bulu. Kain bulu menjadi...", opt: ["positif", "negatif", "neutral"], ans: 0, fCorrect: "Kain bulu kehilangan elektron, jadi proton lebih banyak. Ia bercas positif.", fWrong: "Kain bulu kehilangan elektron, jadi proton lebih banyak. Ia bercas positif." },
+            { q: "Dua belon bercas negatif didekatkan. Apa berlaku?", opt: ["Saling menarik", "Saling menolak", "Tiada apa-apa"], ans: 1, fCorrect: "Cas yang sama jenis saling menolak.", fWrong: "Cas yang sama jenis saling menolak." },
+            { q: "Kenapa belon bercas boleh melekat pada dinding yang neutral?", opt: ["Dinding ada gam", "Cas dalam dinding tersusun semula", "Dinding bercas negatif"], ans: 1, fCorrect: "Bahagian dinding yang dekat dengan belon menjadi positif, jadi belon tertarik.", fWrong: "Bahagian dinding yang dekat dengan belon menjadi positif, jadi belon tertarik." },
+            { q: "Kilat ialah...", opt: ["cahaya matahari yang terpantul", "nyahcas, iaitu cas dari awan mengalir ke Bumi", "angin yang sangat kuat"], ans: 1, fCorrect: "Kilat ialah nyahcas yang sangat besar.", fWrong: "Kilat ialah nyahcas yang sangat besar." },
+            { q: "Apa tindakan paling selamat sebelum memegang muncung pam minyak?", opt: ["Main telefon", "Sentuh bahagian logam kereta dahulu", "Gosok tangan pada tempat duduk"], ans: 1, fCorrect: "Cas pada badan mengalir pergi melalui logam, jauh daripada wap petrol.", fWrong: "Cas pada badan mengalir pergi melalui logam, jauh daripada wap petrol." }
+        ];
+
+        // --- 2. PEMBOLEH UBAH PERMAINAN ---
+        let solvedCount = 0;
+        let firstTryCount = 0;
+        let currentBox = null;
+        let attemptsOnCurrent = 0;
+        let isPaused = true;
+        let soundEnabled = true;
+
+        // --- 3. SISTEM BUNYI (AudioContext Sintesis) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        
+        function playTone(type) {
+            if (!soundEnabled) return;
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            }
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        document.getElementById('btn-sound').addEventListener('click', (e) => {
+            soundEnabled = !soundEnabled;
+            e.target.innerText = soundEnabled ? "🔊 Bunyi: ON" : "🔇 Bunyi: OFF";
+        });
+
+        // --- 4. PERSEDIAAN THREE.JS ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a1a);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Cahaya
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        dirLight.position.set(5, 10, 5);
+        scene.add(dirLight);
+
+        // Watak Pemain (Detektif) & Bounding Box
+        const player = new THREE.Group();
+        player.position.set(2, 1, 2);
+        scene.add(player);
+        camera.position.set(0, 0.5, 0); // Pandangan Orang Pertama
+        player.add(camera);
+        const playerBB = new THREE.Box3();
+
+        // Lantai
+        const floorGeo = new THREE.PlaneGeometry(50, 50);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
+
+        // Tekstur Dinding (Corak Proton + dan Elektron -)
+        function createWallTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#666'; ctx.fillRect(0,0,256,256);
+            ctx.font = '60px Arial'; ctx.textAlign = 'center';
+            ctx.fillStyle = '#ff4444'; ctx.fillText('+', 64, 80); ctx.fillText('+', 192, 200);
+            ctx.fillStyle = '#4444ff'; ctx.fillText('-', 192, 80); ctx.fillText('-', 64, 200);
+            return new THREE.CanvasTexture(canvas);
+        }
+        const wallMat = new THREE.MeshStandardMaterial({ map: createWallTexture() });
+        
+        // Peta Labirin (1: Dinding, 0: Laluan, 2: Kotak Soalan)
+        const map = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,1,0,0,0,2,0,0,0,1],
+            [1,2,1,0,1,0,1,1,1,1,1,0,1],
+            [1,0,1,0,0,0,0,0,0,0,1,0,1],
+            [1,0,1,1,1,1,1,0,1,2,1,0,1],
+            [1,0,0,0,2,0,1,0,1,0,0,0,1],
+            [1,1,1,0,1,1,1,0,1,1,1,1,1],
+            [1,0,0,0,0,0,0,0,0,0,2,0,1],
+            [1,0,1,1,1,2,1,1,1,0,1,0,1],
+            [1,0,2,0,1,0,0,0,1,0,1,2,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        const walls = [];
+        const interactables = [];
+        const boxGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+        const wallGeo = new THREE.BoxGeometry(2, 2, 2);
+
+        let qIndex = 0;
+        for(let z = 0; z < map.length; z++) {
+            for(let x = 0; x < map[z].length; x++) {
+                if(map[z][x] === 1) {
+                    let w = new THREE.Mesh(wallGeo, wallMat);
+                    w.position.set(x * 2, 1, z * 2);
+                    scene.add(w);
+                    walls.push(new THREE.Box3().setFromObject(w));
+                } else if(map[z][x] === 2 && qIndex < questionsData.length) {
+                    let bMat = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xaaaa00 });
+                    let b = new THREE.Mesh(boxGeo, bMat);
+                    b.position.set(x * 2, 0.5, z * 2);
+                    scene.add(b);
+                    
+                    // Tambah data soalan pada objek
+                    b.userData = { id: qIndex, solved: false, data: questionsData[qIndex] };
+                    interactables.push(b);
+                    qIndex++;
+                }
+            }
+        }
+
+        // --- 5. KAWALAN PEMAIN ---
+        const keys = { w:false, a:false, s:false, d:false };
+        let isMouseDown = false; let lastMouseX = 0;
+        
+        const ARROW = { arrowup:'w', arrowleft:'a', arrowdown:'s', arrowright:'d' };
+        const keyOf = e => { const k = e.key.toLowerCase(); return ARROW[k] || k; };
+        document.addEventListener('keydown', e => { const k = keyOf(e); if(keys.hasOwnProperty(k)) { keys[k] = true; if(ARROW[e.key.toLowerCase()]) e.preventDefault(); } });
+        document.addEventListener('keyup', e => { const k = keyOf(e); if(keys.hasOwnProperty(k)) keys[k] = false; });
+        
+        document.addEventListener('mousedown', e => { if(e.target.tagName !== 'BUTTON' && !isPaused) { isMouseDown = true; lastMouseX = e.clientX; }});
+        document.addEventListener('mousemove', e => {
+            if(isMouseDown && !isPaused) {
+                player.rotation.y -= (e.clientX - lastMouseX) * 0.005;
+                lastMouseX = e.clientX;
+            }
+        });
+        document.addEventListener('mouseup', () => isMouseDown = false);
+
+        // Kawalan Telefon (Sentuhan)
+        let joyMove = { x: 0, z: 0 };
+        const joyZone = document.getElementById('joy-zone');
+        const joyKnob = document.getElementById('joy-knob');
+        let joyCenter = { x: 65, y: 65 };
+        
+        joyZone.addEventListener('touchstart', handleJoy, {passive: false});
+        joyZone.addEventListener('touchmove', handleJoy, {passive: false});
+        joyZone.addEventListener('touchend', () => {
+            joyKnob.style.transform = `translate(0px, 0px)`;
+            joyMove = { x: 0, z: 0 };
+        });
+
+        function handleJoy(e) {
+            e.preventDefault();
+            let rect = joyZone.getBoundingClientRect();
+            let touch = e.changedTouches[0];
+            let dx = (touch.clientX - rect.left) - joyCenter.x;
+            let dy = (touch.clientY - rect.top) - joyCenter.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if(dist > 40) { dx = (dx/dist)*40; dy = (dy/dist)*40; }
+            joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+            joyMove.x = dx / 40; joyMove.z = dy / 40;
+        }
+
+        let touchCam = { active: false, lastX: 0 };
+        const camZone = document.getElementById('cam-zone');
+        camZone.addEventListener('touchstart', e => {
+            if(isPaused) return; e.preventDefault();
+            touchCam.active = true; touchCam.lastX = e.changedTouches[0].clientX;
+        }, {passive: false});
+        camZone.addEventListener('touchmove', e => {
+            if(isPaused || !touchCam.active) return; e.preventDefault();
+            let curX = e.changedTouches[0].clientX;
+            player.rotation.y -= (curX - touchCam.lastX) * 0.005;
+            touchCam.lastX = curX;
+        }, {passive: false});
+        camZone.addEventListener('touchend', () => touchCam.active = false);
+
+        // --- 6. LOGIK INTERAKSI & UI SOALAN ---
+        document.getElementById('btn-mula').addEventListener('click', () => {
+            document.getElementById('start-box').style.display = 'none';
+            document.getElementById('modal-overlay').style.display = 'none';
+            isPaused = false; clock.getDelta();
+        });
+
+        const btnPeriksa = document.getElementById('btn-periksa');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const soalanBox = document.getElementById('soalan-box');
+        const endBox = document.getElementById('end-box');
+        
+        btnPeriksa.addEventListener('click', () => {
+            if(currentBox && !currentBox.userData.solved) {
+                bukaSoalan(currentBox);
+            }
+        });
+
+        function bukaSoalan(box) {
+            isPaused = true;
+            attemptsOnCurrent = 0;
+            modalOverlay.style.display = 'flex';
+            soalanBox.style.display = 'block';
+            document.getElementById('start-box').style.display = 'none';
+            endBox.style.display = 'none';
+            document.getElementById('btn-tutup-soalan').style.display = 'none';
+            document.getElementById('feedback-text').innerText = '';
+            
+            const qData = box.userData.data;
+            document.getElementById('q-text').innerText = qData.q;
+            
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+            qData.opt.forEach((teks, index) => {
+                let btn = document.createElement('button');
+                btn.className = 'btn-option';
+                btn.innerText = teks;
+                btn.onclick = () => semakJawapan(index, qData.ans, qData.fCorrect, qData.fWrong, box, btn);
+                optContainer.appendChild(btn);
+            });
+        }
+
+        function semakJawapan(pilihIdx, betulIdx, fCorrect, fWrong, box, btn) {
+            const fbText = document.getElementById('feedback-text');
+            const btns = document.querySelectorAll('.btn-option');
+            
+            if(pilihIdx === betulIdx) {
+                // Jawapan Betul
+                playTone('correct');
+                fbText.innerHTML = `<span style="color:green;">Tepat!</span><br>${fCorrect}`;
+                btn.style.background = '#aaffaa';
+                btn.style.borderColor = '#00aa00';
+                
+                if(attemptsOnCurrent === 0) firstTryCount++;
+                box.userData.solved = true;
+                box.material.color.setHex(0x00ff00); // Hijau
+                box.material.emissive.setHex(0x00aa00);
+                
+                solvedCount++;
+                document.getElementById('score-display').innerText = solvedCount;
+                
+                btns.forEach(b => b.disabled = true);
+                document.getElementById('btn-tutup-soalan').style.display = 'block';
+            } else {
+                // Jawapan Salah
+                playTone('wrong');
+                fbText.innerHTML = `<span style="color:red;">Belum tepat.</span><br>${fWrong}`;
+                btn.style.background = '#ffaaaa';
+                attemptsOnCurrent++;
+            }
+        }
+
+        document.getElementById('btn-tutup-soalan').addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+            soalanBox.style.display = 'none';
+            isPaused = false;
+            
+            if(solvedCount === questionsData.length) {
+                setTimeout(() => {
+                    isPaused = true;
+                    modalOverlay.style.display = 'flex';
+                    endBox.style.display = 'block';
+                    document.getElementById('first-try-score').innerText = firstTryCount;
+                }, 500);
+            }
+        });
+
+        // --- 7. GELUNG PERMAINAN (Game Loop) ---
+        const clock = new THREE.Clock();
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            if(isPaused) return;
+
+            const dt = Math.min(clock.getDelta(), 0.1);
+            const speed = 4;
+            
+            // Animasi kotak terapung
+            interactables.forEach(b => {
+                b.rotation.y += 1 * dt;
+                b.position.y = 0.5 + Math.sin(Date.now() * 0.003 + b.position.x) * 0.1;
+            });
+
+            // Simpan posisi lama untuk perlanggaran
+            const oldPos = player.position.clone();
+            
+            // Pergerakan Keyboard & Joystick
+            let moveZ = 0; let moveX = 0;
+            if(keys.w) moveZ = -1; if(keys.s) moveZ = 1;
+            if(keys.a) moveX = -1; if(keys.d) moveX = 1;
+            
+            if(joyMove.z !== 0 || joyMove.x !== 0) {
+                moveZ = joyMove.z; moveX = joyMove.x;
+            }
+
+            if(moveZ !== 0 || moveX !== 0) {
+                const dir = new THREE.Vector3(moveX, 0, moveZ).normalize();
+                dir.applyQuaternion(player.quaternion);
+                player.position.addScaledVector(dir, speed * dt);
+            }
+
+            // Semak Perlanggaran (Collision)
+            playerBB.setFromCenterAndSize(player.position, new THREE.Vector3(0.6, 2, 0.6));
+            let collided = false;
+            for(let wBox of walls) {
+                if(playerBB.intersectsBox(wBox)) {
+                    collided = true; break;
+                }
+            }
+            if(collided) player.position.copy(oldPos);
+
+            // Semak jarak dengan kotak (Interaksi)
+            let nearBox = null;
+            for(let b of interactables) {
+                if(!b.userData.solved && player.position.distanceTo(b.position) < 2.2) {
+                    nearBox = b; break;
+                }
+            }
+            
+            if(nearBox) {
+                currentBox = nearBox;
+                btnPeriksa.style.display = 'block';
+            } else {
+                currentBox = null;
+                btnPeriksa.style.display = 'none';
+            }
+
+            renderer.render(scene, camera);
+        }
+        
+        // Responsif Tetingkap
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

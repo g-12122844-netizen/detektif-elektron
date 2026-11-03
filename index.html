@@ -1510,6 +1510,7 @@ function rSelesai(){
     <div class="block sub"><h3>Misi di rumah: uji ingatan kamu</h3>
       <p><b>Tiga hari lagi</b>, jawab semula kuiz tanpa nota. Adakah markah kamu kekal?</p>
       ${kuizCard('Cuba semula kuiz')}
+      ${/github\.io$/.test(location.hostname) ? `<p><b>Cabaran 3D:</b> jelajah labirin dan selesaikan 8 fail kes untuk ulang kaji.</p><div class="btns center"><a class="btn" href="labirin.html" target="_blank" rel="noopener">Main Labirin Elektron 3D \u2197</a></div>` : ''}
       <p class="muted" style="font-size:.92rem">Mahu teroka lagi? Buka semula <a href="https://phet.colorado.edu/en/simulations/balloons-and-static-electricity" target="_blank" rel="noopener">makmal maya PhET</a>.</p></div>
     ${footer()}</section>`;
   $('#akhir').addEventListener('input', e => { S.akhir = e.target.value; if(S.akhir.trim().length > 20) award('akhir', 10, 'Soalan siasatan dijawab'); save(); updateMisi(); });
