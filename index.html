@@ -186,6 +186,7 @@ input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-vis
 .cc-name small{font-family:var(--f-body);font-size:.75rem;letter-spacing:0}
 .bridge{background:var(--card);border:2.5px solid var(--line);border-left:8px solid var(--neg);border-radius:8px;padding:8px 12px;font-size:.95rem}
 .rules-mini{background:var(--spark);color:#1A1A2E;border:3px solid var(--line);border-radius:8px;padding:10px 14px;box-shadow:4px 4px 0 var(--shadow)}
+.cer-claim{margin:4px 0 0;background:var(--spark-soft);border:2px solid var(--line);border-radius:8px;padding:8px 12px}
 .seg-next{width:100%;margin-top:10px}
 .toolbar #stagebar{display:flex;gap:8px;align-items:center}
 .tb{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.04em;border:2.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:5px 12px;cursor:pointer;box-shadow:2px 2px 0 var(--shadow);white-space:nowrap}
@@ -370,7 +371,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;backgroun
     <div>
       <p>Hub ini direka untuk SP 7.1.2 dan 7.1.3, sesi ±80 minit, murid bekerja berpasangan pada satu peranti. Tiada log masuk. Murid memasukkan nama penuh ahli pasangan dan kelas untuk sijil. Data hanya disimpan dalam pelayar peranti murid dan dihantar kepada guru melalui Google Form. Di Padlet, murid menulis nama pertama sahaja.</p>
       <p>Murid bergerak melalui peta <b>Bandar Elektron</b>. Laluan utama dibuka ikut urutan; Muzium Sains, Stesen Minyak dan Padang Kilat boleh dibuat ikut urutan pilihan murid (choice board). Depoh Lori Minyak ialah cabaran pengayaan pilihan. Butang petunjuk berperingkat tersedia pada soalan utama. Cadangan: padankan pasangan berdasarkan skor ujian pra (kuat dengan sederhana). Bunyi boleh dimatikan dengan butang 🔊.</p>
-      <p>Jawapan kartun konsep di Muzium Sains dikunci sehingga perbincangan kelas. Selepas berbincang, sebut kod kepada murid. Kod ditetapkan dalam pemboleh ubah <code>KOD_GURU</code> di bahagian atas skrip.</p>
+      <p>Jawapan kartun konsep dibuka automatik di Kes Ditutup, selepas murid memilih semula dan menulis refleksi (dakwaan, bukti, penaakulan). Padlet juga digunakan di Kes Ditutup. Cadangan: tutup sesi dengan perbincangan seluruh kelas menggunakan siaran Padlet (±10 minit).</p>
       <p>Untuk menerima keputusan dalam Google Sheets: bina Google Form dengan medan Nama ahli 1, Nama ahli 2, Kelas, Skor pra, Skor pasca dan XP. Pangkat untuk sijil datang daripada Kuiz Cabaran. Ambil pautan "pre-filled", kemudian isi pemboleh ubah <code>FORM</code> di bahagian atas skrip dalam fail ini.</p>
       <p>Kemajuan disimpan dalam pelayar peranti ini sahaja. <button class="btn ghost" id="reset" type="button">Mula semula dari awal</button></p>
     </div>
@@ -565,7 +566,7 @@ const KES = [
 /* ====== KEADAAN ====== */
 const fresh = () => ({
   stage:0, reached:0, xp:0, got:{}, nama:'', kelas:'', awal:'', akhir:'', refleksi:'',
-  nama2:'', daftar:false, kuiz:false, vid:null, vdg:null, misteri:null, dinding:false, cc:null, ccUnlock:false, seg:{}, view:'loc', sub:'vdg', hint:{}, depoh:{}, stamped:[], snd:true, phet:{}, pra:{}, praDone:false, pasca:{}, pascaDone:false,
+  nama2:'', daftar:false, kuiz:false, vid:null, vdg:null, misteri:null, dinding:false, cc:null, ccUnlock:false, cc2:null, bukti:'', penaakulan:'', ccDone:false, seg:{}, view:'loc', sub:'vdg', hint:{}, depoh:{}, stamped:[], snd:true, phet:{}, pra:{}, praDone:false, pasca:{}, pascaDone:false,
   teroka:{ e:8, found:{}, pick:null },
   m1:{ pred:null, hairE:10, balE:10, air:0, humid:false, done:false, humidSeen:false },
   m2:{ A:{p:null,t:false}, B:{p:null,t:false}, C:{p:null,t:false} },
@@ -668,7 +669,7 @@ function cur(){ return LOCS.find(L => L.stage === S.stage && (S.stage !== 5 || L
 function subDone(sub){ const k = S.kilat; return sub === 'vdg' ? S.vdg != null : sub === 'misteri' ? S.misteri != null : sub === 'kilat' ? (k.hitFree && k.hitRod) : !!S.kuiz; }
 function locDone(L){
   if(L.stage === 5) return subDone(L.sub);
-  if(L.stage === 7) return S.akhir.trim().length > 20 && S.refleksi.trim().length > 20;
+  if(L.stage === 7) return S.akhir.trim().length > 20 && !!S.ccDone;
   return stageDone(L.stage);
 }
 function locOpen(L){
@@ -857,11 +858,11 @@ function misiItems(i){
     case 1: return [[`Jawab semua soalan (${pra}/5)`, pra === 5], ['Tekan Hantar jawapan', S.praDone]];
     case 2: return [[`Kenal pasti cas: neutral, positif dan negatif (${['neu','pos','neg'].filter(x => S.teroka.found[x]).length}/3)`, ['pos','neg','neu'].every(x => S.teroka.found[x])], ['Buat ramalan sebelum menggosok belon', m.pred != null], ['Gosok belon sehingga 4 elektron berpindah', m.done], ['Siasat hari yang lembap', !!S.got.lembap, 1]];
     case 3: return [[`Makmal maya PhET (${PHET_Q.filter((q, j) => S.phet[j] != null).length}/3)`, PHET_Q.every((q, j) => S.phet[j] != null)], [`Uji situasi tarik atau tolak (${m2}/3)`, m2 === 3]];
-    case 4: return [['Susun rantai penerangan', S.chainOk], ['Pilih pendapat dalam kartun konsep', S.cc != null], ['Siar dan komen di Padlet', S.dinding, 1]];
-    case 5: return ({ vdg:[['Jawab soalan rambut tegak', S.vdg != null], ['Bincang jawapan kartun konsep bersama guru', !!S.ccUnlock, 1]], misteri:[['Selesaikan Misteri Stesen Minyak', S.misteri != null]], kilat:[['Lihat kilat tanpa konduktor', k.hitFree], ['Lihat kilat dengan konduktor', k.hitRod]], kuiz:[['Selesaikan Kuiz Cabaran dan hantar keputusan', S.kuiz]] })[S.sub || 'vdg'];
+    case 4: return [['Susun rantai penerangan', S.chainOk], ['Pilih pendapat dalam kartun konsep', S.cc != null]];
+    case 5: return ({ vdg:[['Jawab soalan rambut tegak', S.vdg != null]], misteri:[['Selesaikan Misteri Stesen Minyak', S.misteri != null]], kilat:[['Lihat kilat tanpa konduktor', k.hitFree], ['Lihat kilat dengan konduktor', k.hitRod]], kuiz:[['Selesaikan Kuiz Cabaran dan hantar keputusan', S.kuiz]] })[S.sub || 'vdg'];
     case 8: return [[`Jawab soalan Cabaran Pakar (${DEPOH.filter((q, j) => S.depoh[j] != null).length}/2)`, DEPOH.every((q, j) => S.depoh[j] != null)]];
     case 6: return [[`Jawab semua soalan (${pas}/5)`, pas === 5], ['Tekan Hantar jawapan', S.pascaDone]];
-    default: return [['Jawab semula soalan siasatan', S.akhir.trim().length > 20, 1], ['Tulis refleksi pasangan', S.refleksi.trim().length > 20, 1], ['Cuba semula Kuiz Cabaran 3 hari lagi', false, 1]];
+    default: return [['Jawab semula soalan siasatan', S.akhir.trim().length > 20], ['Lihat semula kartun konsep dan tulis refleksi', !!S.ccDone], ['Siar refleksi dan komen di Padlet', S.dinding, 1], ['Cuba semula Kuiz Cabaran 3 hari lagi', false, 1]];
   }
 }
 function misiHTML(i){
@@ -893,6 +894,7 @@ function updateMisi(){
 
 function render(){
   $('#xp').textContent = S.xp;
+  if(!S.daftar && S.nama.trim() && S.kelas.trim() && (S.stage > 0 || S.vid != null)) S.daftar = true; // kemajuan dari versi lama
   if(S.view === 'map' && !S.daftar) S.view = 'loc';
   renderBar();
   if(S.view === 'map'){ rPeta(); return; }
@@ -1267,22 +1269,6 @@ function rTerang(){
       <div class="cc">${CC.map((k, i) => `<label class="cc-cell"><p class="cc-say">${esc(k.t)}</p>${kid(k)}<span class="cc-name"><input type="radio" name="cc" value="${i}" ${S.cc===i?'checked':''} ${S.reached>=5?'disabled':''}> ${esc(k.n)}</span></label>`).join('')}</div>
       <div aria-live="polite" id="ccInfo">${ccInfo()}</div>
     </div>`}
-    ${S.cc == null ? '' : `<div class="video-panel">
-      <h3>Dinding kelas: kongsi dan komen</h3>
-      <ol style="margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px">
-        <li><b>Siar:</b> <i>"Kami setuju dengan … kerana …"</i> (nama pertama sahaja)</li>
-        <li><b>Baca</b> siaran pasangan lain.</li>
-        <li><b>Komen</b> dua siaran: <b>2 Bintang 1 Harapan</b>.</li>
-      </ol>
-      <div class="starter" style="background:var(--card)">
-        <p><b>★</b> Kamu betul bahawa…</p>
-        <p><b>★</b> Saya suka perkataan…</p>
-        <p><b>?</b> Lebih lengkap jika…</p>
-      </div>
-      ${DINDING.url ? `<a class="btn cta" href="${esc(DINDING.url)}" target="_blank" rel="noopener"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H9l-5 4z" fill="#fff" stroke="#1A1A2E" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 12h5" stroke="#1A1A2E" stroke-width="2" stroke-linecap="round"/></svg><span>Klik di sini: Buka Padlet</span><span aria-hidden="true">↗</span></a><p class="muted" style="font-size:.85rem;text-align:center">Dibuka dalam tab baharu.</p>` : `<p class="muted" style="font-size:.9rem">Guru akan memberi pautan dinding kelas.</p>`}
-      <label class="toggle"><input type="checkbox" id="dinding" ${S.dinding?'checked disabled':''} ${S.cc==null?'disabled':''}> Kami sudah menyiarkan dan memberi dua komen</label>
-      <div aria-live="polite">${S.dinding ? `<div class="fb info"><b>Terima kasih, detektif!</b><span>Jawapan dibincangkan bersama guru di Muzium Sains.</span></div>` : ''}</div>
-    </div>`}
     ${footer()}</section>`;
   $$('[data-c]').forEach(b => b.onclick = () => {
     const i = +b.dataset.c; if(S.chain.includes(i) || S.chainOk) return;
@@ -1295,27 +1281,52 @@ function rTerang(){
   });
   const r = $('#chainReset'); if(r) r.onclick = () => { S.chain = []; save(); rTerang(); bindFooter(); };
   $$('input[name="cc"]').forEach(x => x.addEventListener('change', () => { if(S.reached >= 5) return; const first = S.cc == null; S.cc = +x.value; award('cc', 5, 'Pendapat dipilih'); save(); if(first){ rTerang(); bindFooter(); } else { const ci = $('#ccInfo'); if(ci) ci.innerHTML = ccInfo(); } }));
-  const dd = $('#dinding'); if(dd) dd.onchange = () => { if(!dd.checked || S.cc == null) return; S.dinding = true; award('dinding', 10, 'Komen rakan sebaya'); save(); rTerang(); bindFooter(); renderBar(); const p = $('#dinding'); if(p) p.closest('.video-panel').scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'center' }); };
 }
-function ccRevealHTML(){
-  if(S.cc == null) return '';
-  const ok = S.cc === CC_OK;
-  if(!S.ccUnlock) return `<div class="block reveal locked-panel">
-    <h3>Jawapan kartun konsep: siapa yang betul?</h3>
-    <div class="lock-msg"><svg width="34" height="34" viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="12" width="18" height="13" rx="2" fill="#9CA3AF" stroke="#1A1A2E" stroke-width="2.2"/><path d="M9 12V8a5 5 0 0 1 10 0v4" fill="none" stroke="#1A1A2E" stroke-width="2.2"/></svg><p>Pilihan kamu: <b>${esc(CC[S.cc].n)}</b>. <b>Tunggu perbincangan bersama guru.</b> Sementara itu, teruskan kes di bawah.</p></div>
-    <div class="kod-row"><label class="field" for="ccKod">Kod daripada guru<input type="text" id="ccKod" maxlength="20" autocomplete="off" placeholder="Taip kod di sini"></label><button class="btn" type="button" id="ccBuka">Buka jawapan</button></div>
-    <p class="muted" id="ccErr" aria-live="polite" style="font-size:.9rem"></p>
-  </div>`;
-  if(ok) award('ccOk', 5, 'Pilihan kartun konsep tepat');
-  return `<div class="block reveal">
-    <h3>Jawapan kartun konsep: siapa yang betul?</h3>
-    <div class="cc">${CC.map((k, i) => `<div class="cc-cell ${i===CC_OK?'right':(S.cc===i?'wrong':'')}"><p class="cc-say">${esc(k.t)}</p>${kid(k)}<span class="cc-name">${i===CC_OK?'✓ ':''}${esc(k.n)}${S.cc===i?' <small>(pilihan kamu)</small>':''}</span></div>`).join('')}</div>
-    <div class="fb ${ok?'ok':'bad'}"><b>${ok?'Tepat! Mei Ling yang betul.':'Mei Ling yang betul.'}</b><span>${CC.filter((k, i) => i!==CC_OK).map(k => `${esc(k.n)}: ${esc(k.w)}`).join(' ')} Adakah komen rakan kamu di Padlet betul?</span></div>
-  </div>`;
+function ccReady(){ return S.cc2 != null && S.bukti.trim().length > 10 && S.penaakulan.trim().length > 10 && S.refleksi.trim().length > 10; }
+function ccRefHTML(){
+  const was = S.cc != null ? CC[S.cc].n : null, done = !!S.ccDone, now = S.cc2;
+  let ans = '';
+  if(done){
+    const ok = now === CC_OK, firstOk = S.cc === CC_OK;
+    const change = ok && !firstOk && S.cc != null ? 'Idea kamu berubah ke arah yang betul!' : ok && firstOk ? 'Kamu kekal dengan idea yang betul.' : 'Bincangkan pilihan ini bersama guru semasa perbincangan Padlet.';
+    ans = `<div class="fb ${ok?'ok':'bad'}"><b>${ok?'Tepat! Mei Ling yang betul.':'Mei Ling yang betul.'} ${change}</b><span>${CC.filter((k, i) => i!==CC_OK).map(k => `${esc(k.n)}: ${esc(k.w)}`).join(' ')}</span></div>`;
+  }
+  return `<div class="block sub" id="ccRef"><span class="mono">Refleksi: kartun konsep</span>
+    <h3>Siapa yang betul sekarang?</h3>
+    <p>Belon yang digosok melekat pada dinding. ${was ? `Di Bilik Darjah, kamu pilih <b>${esc(was)}</b>.` : ''} Selepas semua siasatan, siapa yang kamu setuju sekarang?</p>
+    <div class="cc">${CC.map((k, i) => `<label class="cc-cell ${done ? (i===CC_OK?'right':(now===i?'wrong':'')) : ''}"><p class="cc-say">${esc(k.t)}</p>${kid(k)}<span class="cc-name"><input type="radio" name="cc2" value="${i}" ${now===i?'checked':''} ${done?'disabled':''}> ${done && i===CC_OK ? '✓ ' : ''}${esc(k.n)}${S.cc===i ? ' <small>(pilihan awal)</small>' : ''}</span></label>`).join('')}</div>
+    <p class="cer-claim"><b>Dakwaan:</b> <span id="cerClaim">${now != null ? `Kami setuju dengan ${esc(CC[now].n)}.` : 'Pilih satu watak di atas.'}</span></p>
+    <label class="field" for="bukti">Bukti: apa yang kami lihat dalam siasatan?</label>
+    <textarea id="bukti" ${done?'disabled':''} placeholder="Di Makmal Detektif / PhET, kami lihat…">${esc(S.bukti)}</textarea>
+    <label class="field" for="penaakulan">Penaakulan: kenapa bukti itu menyokong dakwaan kami?</label>
+    <textarea id="penaakulan" ${done?'disabled':''} placeholder="Ini kerana elektron…">${esc(S.penaakulan)}</textarea>
+    <label class="field" for="refleksi">Perubahan idea</label>
+    <textarea id="refleksi" ${done?'disabled':''} placeholder="Dahulu kami pilih… Sekarang kami pilih… kerana…">${esc(S.refleksi)}</textarea>
+    ${done ? '' : `<div class="btns"><button class="btn" type="button" id="ccSemak" ${ccReady()?'':'disabled'}>Semak jawapan</button></div><p class="muted" style="font-size:.88rem">Pilih watak dan lengkapkan tiga ruang untuk membuka jawapan.</p>`}
+    <div aria-live="polite">${ans}</div>
+  </div>
+  ${done ? `<div class="video-panel">
+    <h3>Dinding kelas: kongsi refleksi kamu</h3>
+    <ol style="margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px">
+      <li><b>Siar:</b> <i>"Dahulu kami pilih …, sekarang kami pilih … kerana …"</i> (nama pertama sahaja)</li>
+      <li><b>Baca</b> siaran pasangan lain.</li>
+      <li><b>Komen</b> dua siaran: <b>2 Bintang 1 Harapan</b>.</li>
+    </ol>
+    <div class="starter" style="background:var(--card)"><p><b>★</b> Kamu betul bahawa…</p><p><b>★</b> Saya suka perkataan…</p><p><b>?</b> Lebih lengkap jika…</p></div>
+    ${DINDING.url ? `<a class="btn cta" href="${esc(DINDING.url)}" target="_blank" rel="noopener"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H9l-5 4z" fill="#fff" stroke="#1A1A2E" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 12h5" stroke="#1A1A2E" stroke-width="2" stroke-linecap="round"/></svg><span>Klik di sini: Buka Padlet</span><span aria-hidden="true">↗</span></a><p class="muted" style="font-size:.85rem;text-align:center">Dibuka dalam tab baharu. Guru akan membincangkan siaran bersama kelas.</p>` : `<p class="muted" style="font-size:.9rem">Guru akan memberi pautan dinding kelas.</p>`}
+    <label class="toggle"><input type="checkbox" id="dinding" ${S.dinding?'checked disabled':''}> Kami sudah menyiarkan dan memberi dua komen</label>
+  </div>` : ''}`;
+}
+function bindCcRef(){
+  const btn = () => { const b = $('#ccSemak'); if(b) b.disabled = !ccReady(); };
+  $$('input[name="cc2"]').forEach(x => x.addEventListener('change', () => { if(S.ccDone) return; S.cc2 = +x.value; save(); const c = $('#cerClaim'); if(c) c.textContent = `Kami setuju dengan ${CC[S.cc2].n}.`; btn(); }));
+  [['bukti','bukti'],['penaakulan','penaakulan'],['refleksi','refleksi']].forEach(([id, k]) => { const t = $('#' + id); if(t) t.addEventListener('input', () => { S[k] = t.value; save(); btn(); }); });
+  const sm = $('#ccSemak'); if(sm) sm.onclick = () => { if(!ccReady()) return; S.ccDone = true; award('refleksi', 10, 'Refleksi lengkap'); if(S.cc2 === CC_OK) award('ccOk', 5, 'Pilihan kartun konsep tepat'); save(); rSelesai(); bindFooter(); renderBar(); const r = $('#ccRef .fb'); if(r) r.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'center' }); };
+  const dd = $('#dinding'); if(dd) dd.onchange = () => { if(!dd.checked) return; S.dinding = true; award('dinding', 10, 'Komen rakan sebaya'); save(); updateMisi(); dd.disabled = true; };
 }
 function ccInfo(){
   if(S.cc == null) return '';
-  return `<div class="fb info"><b>Pilihan kamu: ${esc(CC[S.cc].n)}.</b><span>Siarkan di Padlet: "Kami setuju dengan ${esc(CC[S.cc].n)} kerana …". Jawapan dibincangkan bersama guru di Muzium Sains.</span></div>`;
+  return `<div class="fb info"><b>Pilihan kamu: ${esc(CC[S.cc].n)}.</b><span>Ingat pilihan ini. Kamu akan melihat kartun ini sekali lagi di Kes Ditutup, selepas semua siasatan selesai.</span></div>`;
 }
 function chainFb(){
   if(S.chainOk) return `<div class="fb ok"><b>Rantai lengkap.</b><span>Geseran → elektron berpindah → bahan bercas → tarik atau tolak.</span></div>`;
@@ -1364,7 +1375,7 @@ function rSelesaikan(){
   const k = S.kilat, sub = S.sub || 'vdg';
   const T = { vdg:'Kes rambut tegak', misteri:'Misteri Stesen Minyak', kilat:'Kilat dan konduktor kilat', kuiz:'Kuiz Cabaran Detektif' };
   let body = '';
-  if(sub === 'vdg') body = `${ccRevealHTML()}
+  if(sub === 'vdg') body = `
     <div class="video-panel">
       <h3>Kes kedua: rambut tegak</h3>
       <p>Seorang murid menyentuh kubah penjana Van de Graaff. Perhatikan rambutnya.</p>
@@ -1411,7 +1422,6 @@ function rSelesaikan(){
   };
   $$('input[name="misteri"]').forEach(r => r.addEventListener('change', () => { if(S.misteri != null) return; S.misteri = +r.value; award('misteri', S.misteri === MISTERI.a ? 15 : 5, 'Misteri stesen minyak'); save(); again(); const m = $('#misteriBox .fb'); if(m) m.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'center' }); }));
   const kd = $('#kuizDone'); if(kd) kd.onchange = () => { if(!kd.checked) return; S.kuiz = true; award('kuiz', 15, 'Kuiz Cabaran selesai'); save(); again(); };
-  const cb = $('#ccBuka'); if(cb){ const tryKod = () => { const v = ($('#ccKod').value || '').trim().toUpperCase(); if(v && v === KOD_GURU.toUpperCase()){ S.ccUnlock = true; award('ccDisc', 5, 'Perbincangan kelas'); save(); again(); SFX.play('unlock'); const r = $('.reveal'); if(r) r.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'start' }); } else { SFX.play('lock'); $('#ccErr').textContent = 'Kod tidak tepat. Tunggu guru memberikan kod selepas perbincangan.'; } }; cb.onclick = tryKod; $('#ccKod').addEventListener('keydown', ev => { if(ev.key === 'Enter') tryKod(); }); }
   const rodBtn = $('#rod'); if(rodBtn) rodBtn.onclick = () => { S.kilat.rod = !S.kilat.rod; S.kilat.last = null; save(); again(); };
   $$('input[name="vdg"]').forEach(r => r.addEventListener('change', () => { if(S.vdg != null) return; S.vdg = +r.value; if(S.vdg === 0) award('vdg', 5, 'Misteri rambut tegak'); save(); again(); }));
 }
@@ -1466,7 +1476,7 @@ function compareHTML(){
 
 /* ====== 08 SELESAI ====== */
 function tahap(){ const s = score(PASCA, S.pasca); return s === 5 ? 'Detektif Pakar' : s >= 3 ? 'Detektif' : 'Detektif Pelatih'; }
-function summaryText(){ return `Detektif Elektron\nAhli 1: ${S.nama}\nAhli 2: ${S.nama2 || '-'}\nKelas: ${S.kelas}\nSkor pra: ${score(PRA,S.pra)}/5\nSkor pasca: ${score(PASCA,S.pasca)}/5\nXP: ${S.xp}`; }
+function summaryText(){ return `Detektif Elektron\nAhli 1: ${S.nama}\nAhli 2: ${S.nama2 || '-'}\nKelas: ${S.kelas}\nSkor pra: ${score(PRA,S.pra)}/5\nSkor pasca: ${score(PASCA,S.pasca)}/5\nKartun konsep: awal ${S.cc != null ? CC[S.cc].n : '-'}, akhir ${S.cc2 != null ? CC[S.cc2].n : '-'}\nBukti: ${S.bukti || '-'}\nPenaakulan: ${S.penaakulan || '-'}\nPerubahan: ${S.refleksi || '-'}\nXP: ${S.xp}`; }
 function formLink(){
   if(!FORM.url) return '';
   const e = FORM.entry, p = new URLSearchParams({ usp:'pp_url' });
@@ -1498,9 +1508,8 @@ function rSelesai(){
         </div></div>
       ${S.awal.trim() ? `<div class="starter"><p class="mono">Jawapan awal kami</p><p>${esc(S.awal)}</p></div>` : ''}
       <label class="field" for="akhir">Jawapan kami sekarang (contoh membantu dan membahayakan)</label>
-      <textarea id="akhir" placeholder="Elektrostatik membantu apabila… tetapi membahayakan apabila…">${esc(S.akhir)}</textarea>
-      <label class="field" for="refleksi">Refleksi: Dahulu kami fikir… Sekarang kami tahu…</label>
-      <textarea id="refleksi" placeholder="Dahulu kami fikir… Sekarang kami tahu…">${esc(S.refleksi)}</textarea></div>
+      <textarea id="akhir" placeholder="Elektrostatik membantu apabila… tetapi membahayakan apabila…">${esc(S.akhir)}</textarea></div>
+    ${ccRefHTML()}
     <div class="block sub"><h3>Hantar keputusan kepada guru</h3>
       ${link ? `<div class="btns"><a class="btn spark" href="${esc(link)}" target="_blank" rel="noopener">Hantar ke borang guru</a></div>` :
         `<p class="muted">Salin ringkasan ini jika guru meminta.</p>`}
@@ -1514,7 +1523,7 @@ function rSelesai(){
       <p class="muted" style="font-size:.92rem">Mahu teroka lagi? Buka semula <a href="https://phet.colorado.edu/en/simulations/balloons-and-static-electricity" target="_blank" rel="noopener">makmal maya PhET</a>.</p></div>
     ${footer()}</section>`;
   $('#akhir').addEventListener('input', e => { S.akhir = e.target.value; if(S.akhir.trim().length > 20) award('akhir', 10, 'Soalan siasatan dijawab'); save(); updateMisi(); });
-  $('#refleksi').addEventListener('input', e => { S.refleksi = e.target.value; if(S.refleksi.trim().length > 20) award('refleksi', 10, 'Refleksi lengkap'); save(); updateMisi(); });
+  bindCcRef();
   $('#salin').onclick = async () => {
     try{ await navigator.clipboard.writeText(summaryText()); toast('Ringkasan disalin'); }
     catch(e){ const r = document.createRange(); r.selectNodeContents($('#ringkas')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Pilih dan salin teks ini'); }
