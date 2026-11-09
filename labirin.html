@@ -3,450 +3,723 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Labirin Elektron: Misi Ulang Kaji Detektif</title>
+    <title>Kejar Cas: Misi Elektrostatik</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; background-color: #111; user-select: none; }
-        #game-canvas { display: block; width: 100vw; height: 100vh; }
+        /* RESET & PENGGAYAAN ASAS */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #222; user-select: none; -webkit-touch-callout: none; }
         
-        /* UI Utama */
-        #hud { position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.7); color: white; padding: 10px 20px; border-radius: 10px; font-size: 1.2rem; pointer-events: auto; border: 2px solid #555; }
-        #hud { z-index: 6; }
-        #btn-sound { z-index: 6; position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: 2px solid #555; padding: 10px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; pointer-events: auto; }
-        
-        /* Butang Interaksi */
-        #btn-periksa { position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); background: #ffcc00; color: #000; border: 4px solid #fff; padding: 15px 40px; font-size: 1.5rem; font-weight: bold; border-radius: 20px; cursor: pointer; display: none; pointer-events: auto; box-shadow: 0px 5px 15px rgba(0,0,0,0.5); z-index: 5; }
-        #btn-periksa:active { background: #e6b800; transform: translateX(-50%) scale(0.95); }
+        /* UI UTAMA (HUD) */
+        #hud { position: absolute; top: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.8); color: white; padding: 10px; box-sizing: border-box; z-index: 10; text-align: center; border-bottom: 3px solid #ffcc00; display: none; }
+        #question-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; }
+        .options-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .option { background: #333; padding: 5px 15px; border-radius: 5px; font-weight: bold; }
+        .opt-A { border-left: 5px solid #4CAF50; } /* Hijau */
+        .opt-B { border-left: 5px solid #2196F3; } /* Biru */
+        .opt-C { border-left: 5px solid #FF9800; } /* Oren */
 
-        /* Dialog Soalan & Skrin Akhir */
-        #modal-overlay { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 10; pointer-events: auto; }
-        .modal-box { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; border: 5px solid #444; position: relative; }
-        .modal-title { font-size: 1.3rem; margin-bottom: 15px; font-weight: bold; color: #333; }
-        
-        .btn-option { display: block; width: 100%; margin: 10px 0; padding: 15px; font-size: 1.1rem; font-family: inherit; background: #eef; border: 2px solid #bcf; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
-        .btn-option:hover { background: #ccf; }
-        
-        #feedback-text { margin-top: 20px; font-size: 1.1rem; font-weight: bold; min-height: 1.5rem; }
-        #btn-tutup-soalan, #btn-main-semula, #btn-kembali { margin-top: 15px; padding: 12px 25px; font-size: 1.1rem; font-weight: bold; border-radius: 10px; cursor: pointer; display: none; font-family: inherit; width: 100%; border: none; }
-        #btn-tutup-soalan { background: #4CAF50; color: white; }
-        
-        #btn-main-semula { background: #2196F3; color: white; display: block; margin-bottom: 10px; }
-        #btn-kembali { background: #ff9800; color: white; display: block; text-decoration: none; display: inline-block; box-sizing: border-box;}
+        /* LABEL TERAPUNG DALAM 3D */
+        .floating-label { position: absolute; background: white; color: black; font-weight: bold; font-size: 1.2rem; padding: 2px 10px; border-radius: 5px; border: 2px solid black; transform: translate(-50%, -50%); z-index: 5; display: none; pointer-events: none; }
 
-        /* Kawalan Telefon */
-        #mobile-controls { display: none; }
-        @media (hover: none) and (pointer: coarse) {
-            #mobile-controls { display: block; }
-        }
-        #joy-zone { position: absolute; bottom: 20px; left: 20px; width: 130px; height: 130px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; pointer-events: auto; }
-        #joy-knob { position: absolute; top: 40px; left: 40px; width: 50px; height: 50px; background: rgba(255,255,255,0.6); border-radius: 50%; pointer-events: none; }
-        #start-box h2 { margin-top: 0; color: #1F63F2; }
-        #btn-mula { margin-top: 10px; padding: 14px 25px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; font-family: inherit; width: 100%; border: none; background: #ffcc00; color: #000; }
-        #cam-zone { position: absolute; top: 0; right: 0; width: 50vw; height: 100vh; pointer-events: auto; touch-action: none; }
+        /* KOTAK DIALOG (MULA, MAKLUM BALAS, TAMAT) */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 20; }
+        .dialog-box { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .dialog-title { font-size: 2rem; font-weight: bold; margin-bottom: 15px; margin-top: 0; }
+        .dialog-text { font-size: 1.1rem; margin-bottom: 20px; line-height: 1.4; color: #333; }
+        .btn { padding: 12px 25px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.95); }
+        .btn-start { background: #ffcc00; color: #000; }
+        .btn-correct { background: #4CAF50; color: white; }
+        .btn-wrong { background: #f44336; color: white; }
+
+        /* KAWALAN TELEFON (JOYSTICK) */
+        #joystick-zone { position: absolute; bottom: 0; left: 0; width: 50vw; height: 50vh; z-index: 15; touch-action: none; display: none; }
+        #joystick-base { position: absolute; width: 120px; height: 120px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; display: none; transform: translate(-50%, -50%); pointer-events: none; }
+        #joystick-knob { position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; background: rgba(255,255,255,0.8); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+
+        @media (pointer: coarse) { #joystick-zone { display: block; } } /* Tunjuk joystick hanya pada peranti sentuh */
+        
+        /* TAMBAHAN POWER-UP, PORTAL & ENDING EPIK */
+        #powerup-bar-container { position: absolute; bottom: 15px; left: 15px; width: 160px; height: 25px; background: #333; border: 3px solid #fff; border-radius: 10px; z-index: 10; display: none; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        #powerup-bar { width: 0%; height: 100%; background: #ffeb3b; transition: width 0.2s, background 0.2s; }
+        #powerup-text { position: absolute; width: 100%; text-align: center; color: #000; font-size: 0.9rem; font-weight: bold; line-height: 25px; top: 0; left: 0; pointer-events: none; }
+        
+        #portal-msg { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); background: rgba(170, 0, 255, 0.9); color: white; padding: 15px 30px; font-size: 1.5rem; font-weight: bold; border-radius: 10px; border: 3px solid #fff; z-index: 15; display: none; animation: pulse 1s infinite; text-align: center; box-shadow: 0 0 20px #aa00ff; }
+        @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } 100% { transform: translate(-50%, -50%) scale(1); } }
+        
+        .epic-title { font-size: 3rem; text-shadow: 0 0 10px #4CAF50, 0 0 30px #4CAF50; animation: shake 0.5s infinite alternate; }
+        @keyframes shake { from { transform: rotate(-2deg) scale(1); } to { transform: rotate(2deg) scale(1.1); } }
     </style>
 </head>
 <body>
 
-    <!-- Antara Muka Permainan -->
-    <div id="hud">Fail Kes: <span id="score-display">0</span> / 8</div>
-    <button id="btn-sound">🔊 Bunyi: ON</button>
-    <button id="btn-periksa">PERIKSA</button>
+    <!-- Butang BGM -->
+    <button id="btn-bgm" style="position:absolute; top:10px; right:10px; background:#333; color:white; border:2px solid #ffcc00; padding:5px 10px; border-radius:5px; cursor:pointer; font-weight:bold; z-index:100;">🔇 BGM: OFF</button>
 
-    <!-- Kawalan Telefon -->
-    <div id="mobile-controls">
-        <div id="joy-zone"><div id="joy-knob"></div></div>
-        <div id="cam-zone"></div>
-    </div>
-
-    <!-- Modal Dialog (Soalan & Penamat) -->
-    <div id="modal-overlay" style="display:flex;">
-        <!-- Kotak Mula -->
-        <div id="start-box" class="modal-box">
-            <h2>LABIRIN ELEKTRON</h2>
-            <p>Cari <b>8 kotak kuning bercahaya</b> dalam labirin. Dekati kotak dan tekan <b>PERIKSA</b> untuk menjawab soalan.</p>
-            <p style="font-size:0.95rem;text-align:left;"><b>Komputer:</b> WASD atau anak panah untuk bergerak, seret tetikus untuk pusing.<br><b>Telefon:</b> joystick kiri untuk bergerak, leret skrin kanan untuk pusing.</p>
-            <button id="btn-mula">MULA MISI</button>
-        </div>
-        <!-- Kotak Soalan -->
-        <div id="soalan-box" class="modal-box" style="display:none;">
-            <div id="q-text" class="modal-title">Soalan di sini</div>
-            <div id="options-container"></div>
-            <div id="feedback-text"></div>
-            <button id="btn-tutup-soalan">Teruskan Memburu</button>
-        </div>
-        
-        <!-- Kotak Tamat -->
-        <div id="end-box" class="modal-box" style="display:none;">
-            <h2 style="color: #4CAF50; margin-top:0;">KES DITUTUP!</h2>
-            <p>Tahniah, Detektif!</p>
-            <p><strong>Markah Cubaan Pertama: <span id="first-try-score"></span> / 8</strong></p>
-            <hr>
-            <p style="font-size: 0.95rem; text-align: left;">
-                <strong>Ringkasan Kes:</strong><br>
-                1. Peraturan Emas 1: Cas dihasilkan melalui geseran.<br>
-                2. Peraturan Emas 2: Hanya elektron (cas negatif) yang berpindah.
-            </p>
-            <button id="btn-main-semula" onclick="location.reload()">Main Semula</button>
-            <a href="index.html" id="btn-kembali">Kembali ke Bandar Elektron</a>
+    <!-- HUD Atas -->
+    <div id="hud">
+        <div id="question-text">Memuatkan soalan...</div>
+        <div class="options-container">
+            <div class="option opt-A" id="txt-opt-A">A: -</div>
+            <div class="option opt-B" id="txt-opt-B">B: -</div>
+            <div class="option opt-C" id="txt-opt-C">C: -</div>
         </div>
     </div>
 
-    <!-- Skrip Teras Three.js dari CDN -->
+    <!-- Label Terapung Jawapan -->
+    <div id="label-A" class="floating-label">A</div>
+    <div id="label-B" class="floating-label">B</div>
+    <div id="label-C" class="floating-label">C</div>
+
+    <!-- UI Portal & Power Up -->
+    <div id="portal-msg">⚡ PINTU PORTAL TERBUKA! ⚡<br><span style="font-size:1rem;">Cari portal ungu untuk ke tahap seterusnya!</span></div>
+    <div id="powerup-bar-container">
+        <div id="powerup-bar"></div>
+        <div id="powerup-text">KUMPUL ELEKTRON!</div>
+    </div>
+
+    <!-- UI Cas Negatif -->
+    <div id="charge-counter" style="position:absolute; bottom:15px; right:15px; background:rgba(0,0,0,0.8); color:#00BFFF; font-weight:bold; padding:8px 15px; border-radius:8px; border:2px solid #00BFFF; z-index:10; display:none; font-size:1.1rem; pointer-events:none;">Cas Negatif: 0</div>
+
+    <!-- Kawalan Mudah Alih -->
+    <div id="joystick-zone">
+        <div id="joystick-base"><div id="joystick-knob"></div></div>
+    </div>
+
+    <!-- Skrin Mula -->
+    <div id="screen-start" class="overlay">
+        <div class="dialog-box">
+            <h1 class="dialog-title" style="color:#ff9800;">KEJAR CAS</h1>
+            <p class="dialog-text">Misi Elektrostatik bermula! Gerakkan sfera biru anda meredah litar untuk mengutip Cas Negatif dan mencari bongkah jawapan yang betul.<br><br><b>AWAS:</b> Elakkan Kiub Cas Liar (Merah)!</p>
+            <p style="font-size:0.9rem; color:#666;">Kawalan: WASD / Anak Panah (Chromebook / komputer) atau Joystick (telefon)</p>
+            <button class="btn btn-start" id="btn-mula">MULA MISI</button>
+        </div>
+    </div>
+
+    <!-- Skrin Maklum Balas (Betul/Salah) -->
+    <div id="screen-feedback" class="overlay" style="display:none;">
+        <div class="dialog-box">
+            <h1 class="dialog-title" id="feedback-title">Tepat!</h1>
+            <p class="dialog-text" id="feedback-desc">Maklum balas di sini.</p>
+            <button class="btn btn-correct" id="btn-teruskan">Teruskan</button>
+        </div>
+    </div>
+
+    <!-- Skrin Tamat -->
+    <div id="screen-end" class="overlay" style="display:none;">
+        <div class="dialog-box" style="background: rgba(10,10,10,0.9); border: 4px solid #4CAF50; box-shadow: 0 0 30px #4CAF50;">
+            <h1 class="dialog-title epic-title" style="color:#4CAF50;">KES DITUTUP!</h1>
+            <p class="dialog-text" style="color: #fff;">Tahniah, Detektif Cas! Anda berjaya meredah semua bahaya, mengutip <span id="final-charges" style="color:#ffcc00; font-weight:bold; font-size:1.3rem;">0</span> Cas Negatif, dan menyelamatkan makmal!</p>
+            <button class="btn btn-correct" onclick="location.reload()" style="box-shadow: 0 0 15px #4CAF50; margin-bottom: 15px;">Main Semula Misi</button><br>
+            <a href="index.html" class="btn btn-start" style="display:inline-block; text-decoration:none; box-shadow: 0 0 15px #ffcc00; width: auto; padding: 12px 25px;">Kembali ke Bandar Elektron</a>
+        </div>
+    </div>
+
+    <!-- Three.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // --- 1. DATA PEMBELAJARAN ---
+        // ==========================================
+        // 1. DATA SOALAN & PEMBOLEH UBAH STATUS
+        // ==========================================
         const questionsData = [
-            { q: "Belon digosok pada rambut. Apakah yang menghasilkan cas?", opt: ["Geseran", "Cahaya", "Angin"], ans: 0, fCorrect: "Peraturan Emas 1: Cas dihasilkan melalui geseran.", fWrong: "Peraturan Emas 1: Cas dihasilkan melalui geseran." },
-            { q: "Semasa dua bahan bergeser, zarah apakah yang berpindah?", opt: ["Proton", "Elektron", "Neutron"], ans: 1, fCorrect: "Peraturan Emas 2: Hanya elektron yang berpindah. Proton tidak bergerak.", fWrong: "Peraturan Emas 2: Hanya elektron yang berpindah. Proton tidak bergerak." },
-            { q: "Sebuah objek ada 6 proton dan 8 elektron. Objek ini bercas...", opt: ["positif", "negatif", "neutral"], ans: 1, fCorrect: "Elektron lebih banyak daripada proton, jadi ia bercas negatif.", fWrong: "Kira betul-betul. Elektron lebih banyak daripada proton, jadi ia bercas negatif." },
-            { q: "Rod politena menerima elektron daripada kain bulu. Kain bulu menjadi...", opt: ["positif", "negatif", "neutral"], ans: 0, fCorrect: "Kain bulu kehilangan elektron, jadi proton lebih banyak. Ia bercas positif.", fWrong: "Kain bulu kehilangan elektron, jadi proton lebih banyak. Ia bercas positif." },
-            { q: "Dua belon bercas negatif didekatkan. Apa berlaku?", opt: ["Saling menarik", "Saling menolak", "Tiada apa-apa"], ans: 1, fCorrect: "Cas yang sama jenis saling menolak.", fWrong: "Cas yang sama jenis saling menolak." },
-            { q: "Kenapa belon bercas boleh melekat pada dinding yang neutral?", opt: ["Dinding ada gam", "Cas dalam dinding tersusun semula", "Dinding bercas negatif"], ans: 1, fCorrect: "Bahagian dinding yang dekat dengan belon menjadi positif, jadi belon tertarik.", fWrong: "Bahagian dinding yang dekat dengan belon menjadi positif, jadi belon tertarik." },
-            { q: "Kilat ialah...", opt: ["cahaya matahari yang terpantul", "nyahcas, iaitu cas dari awan mengalir ke Bumi", "angin yang sangat kuat"], ans: 1, fCorrect: "Kilat ialah nyahcas yang sangat besar.", fWrong: "Kilat ialah nyahcas yang sangat besar." },
-            { q: "Apa tindakan paling selamat sebelum memegang muncung pam minyak?", opt: ["Main telefon", "Sentuh bahagian logam kereta dahulu", "Gosok tangan pada tempat duduk"], ans: 1, fCorrect: "Cas pada badan mengalir pergi melalui logam, jauh daripada wap petrol.", fWrong: "Cas pada badan mengalir pergi melalui logam, jauh daripada wap petrol." }
+            { q: "Belon digosok pada rambut. Apakah yang menghasilkan cas?", opt: ["Geseran", "Cahaya", "Angin"], ans: 0, fb: "Peraturan Emas 1: cas dihasilkan melalui geseran.", hint: "Fikirkan apa yang berlaku apabila dua bahan bersentuhan secara kasar." },
+            { q: "Semasa dua bahan bergeser, zarah apakah yang berpindah?", opt: ["Proton", "Elektron", "Neutron"], ans: 1, fb: "Peraturan Emas 2: hanya elektron yang berpindah. Proton tidak bergerak.", hint: "Zarah manakah yang ringan dan berada di bahagian luar atom?" },
+            { q: "Sebuah objek ada 6 proton dan 8 elektron. Objek ini bercas…", opt: ["positif", "negatif", "neutral"], ans: 1, fb: "Elektron lebih banyak daripada proton, jadi bercas negatif.", hint: "Bandingkan bilangan cas positif dan cas negatif. Mana yang lebih banyak?" },
+            { q: "Rod politena menerima elektron daripada kain bulu. Kain bulu menjadi…", opt: ["positif", "negatif", "neutral"], ans: 0, fb: "Kain bulu kehilangan elektron, jadi proton lebih banyak. Ia bercas positif.", hint: "Jika kain bulu kehilangan elektron (cas -), apa yang tinggal lebih pada kain itu?" },
+            { q: "Dua belon bercas negatif didekatkan. Apa berlaku?", opt: ["Saling menarik", "Saling menolak", "Tiada apa-apa"], ans: 1, fb: "Cas sama jenis saling menolak.", hint: "Apa berlaku pada dua kutub magnet yang sama? Cas juga begitu." },
+            { q: "Kenapa belon bercas boleh melekat pada dinding yang neutral?", opt: ["Dinding ada gam", "Cas dalam dinding tersusun semula", "Dinding bercas negatif"], ans: 1, fb: "Bahagian dinding yang dekat dengan belon menjadi positif, jadi belon tertarik.", hint: "Dinding itu neutral, tetapi cas di dalamnya boleh bergerak menyusun semula." },
+            { q: "Kilat ialah…", opt: ["cahaya matahari yang terpantul", "nyahcas, iaitu cas mengalir ke Bumi", "angin yang sangat kuat"], ans: 1, fb: "Kilat ialah nyahcas yang sangat besar.", hint: "Ia ada kaitan dengan perpindahan cas elektrik yang sangat besar secara tiba-tiba." },
+            { q: "Tindakan paling selamat sebelum memegang muncung pam minyak?", opt: ["Main telefon", "Sentuh bahagian logam kereta", "Gosok tangan pada kerusi"], ans: 1, fb: "Cas pada badan mengalir pergi melalui logam, jauh daripada wap petrol.", hint: "Cari benda konduktor untuk membuang cas dari badan anda dengan selamat." }
         ];
 
-        // --- 2. PEMBOLEH UBAH PERMAINAN ---
-        let solvedCount = 0;
-        let firstTryCount = 0;
-        let currentBox = null;
-        let attemptsOnCurrent = 0;
+        let currentQIndex = 0;
         let isPaused = true;
-        let soundEnabled = true;
-
-        // --- 3. SISTEM BUNYI (AudioContext Sintesis) ---
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioCtx;
         
-        function playTone(type) {
-            if (!soundEnabled) return;
-            if (!audioCtx) audioCtx = new AudioContext();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
+        // ==========================================
+        // 2. SISTEM BUNYI (WEB AUDIO API)
+        // ==========================================
+        let audioCtx;
+        let bgmEnabled = false;
+        let nextNoteTime = 0;
+        let noteIdx = 0;
+        
+        // Melodi minor (comel & mendebarkan)
+        const bgmMidi = [72, 67, 72, 75, 74, 67, 74, 77, 72, 67, 72, 75, 79, 77, 75, 74];
+
+        function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        
+        function playBeep(isCorrect) {
+            if(!audioCtx) return;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            osc.connect(gain); gain.connect(audioCtx.destination);
             
-            if (type === 'correct') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            if(isCorrect) {
+                osc.type = 'square'; osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
             } else {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
             }
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
-        document.getElementById('btn-sound').addEventListener('click', (e) => {
-            soundEnabled = !soundEnabled;
-            e.target.innerText = soundEnabled ? "🔊 Bunyi: ON" : "🔇 Bunyi: OFF";
+        function playBlip() {
+            if(!audioCtx || !bgmEnabled) return;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+        
+        function playPowerUpSound() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function playEpicEnd() {
+            if(!audioCtx) return;
+            [300, 400, 500].forEach(f => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.type = 'triangle';
+                osc.frequency.value = f;
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 3);
+                osc.start(); osc.stop(audioCtx.currentTime + 3);
+            });
+        }
+
+        // Loop Muzik Latar (BGM)
+        function scheduleBGM() {
+            if (!bgmEnabled || !audioCtx) return;
+            if (nextNoteTime < audioCtx.currentTime) nextNoteTime = audioCtx.currentTime + 0.05;
+
+            while (nextNoteTime < audioCtx.currentTime + 0.1) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                
+                // Muzik jadi laju dan agresif jika Super Cas aktif!
+                osc.type = noteIdx % 4 === 0 ? 'square' : 'triangle'; 
+                osc.frequency.value = 440 * Math.pow(2, (bgmMidi[noteIdx] - 69) / 12);
+                
+                gain.gain.setValueAtTime(0.04, nextNoteTime);
+                gain.gain.setTargetAtTime(0.001, nextNoteTime + 0.03, 0.05);
+                
+                let duration = isPoweredUp ? 0.08 : 0.15;
+                let step = isPoweredUp ? 0.07 : 0.14;
+                
+                osc.start(nextNoteTime);
+                osc.stop(nextNoteTime + duration);
+                
+                nextNoteTime += step; 
+                noteIdx = (noteIdx + 1) % bgmMidi.length;
+            }
+            setTimeout(scheduleBGM, 25);
+        }
+
+        document.getElementById('btn-bgm').addEventListener('click', () => {
+            initAudio();
+            bgmEnabled = !bgmEnabled;
+            document.getElementById('btn-bgm').innerText = bgmEnabled ? "🎵 BGM: ON" : "🔇 BGM: OFF";
+            if (bgmEnabled) {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                nextNoteTime = audioCtx.currentTime + 0.1;
+                scheduleBGM();
+            }
         });
 
-        // --- 4. PERSEDIAAN THREE.JS ---
+        // ==========================================
+        // 3. TETAPAN THREE.JS (SCENE, CAMERA, RENDERER)
+        // ==========================================
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a1a);
-        
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        scene.background = new THREE.Color(0x111111);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 55, 14);
+        camera.lookAt(0, 0, 5);
+
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Cahaya
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
-        dirLight.position.set(5, 10, 5);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        dirLight.position.set(10, 20, 10);
         scene.add(dirLight);
 
-        // Watak Pemain (Detektif) & Bounding Box
-        const player = new THREE.Group();
-        player.position.set(2, 1, 2);
-        scene.add(player);
-        camera.position.set(0, 0.5, 0); // Pandangan Orang Pertama
-        player.add(camera);
-        const playerBB = new THREE.Box3();
-
-        // Lantai
-        const floorGeo = new THREE.PlaneGeometry(50, 50);
-        const floorMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+        // ==========================================
+        // 4. BINAAN DUNIA & PORTAL
+        // ==========================================
+        const collidableWalls = [];
+        const floorGeo = new THREE.PlaneGeometry(40, 40);
+        const floorMat = new THREE.MeshLambertMaterial({ color: 0x2a2a2a });
         const floor = new THREE.Mesh(floorGeo, floorMat);
         floor.rotation.x = -Math.PI / 2;
         scene.add(floor);
 
-        // Tekstur Dinding (Corak Proton + dan Elektron -)
-        function createWallTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256; canvas.height = 256;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#666'; ctx.fillRect(0,0,256,256);
-            ctx.font = '60px Arial'; ctx.textAlign = 'center';
-            ctx.fillStyle = '#ff4444'; ctx.fillText('+', 64, 80); ctx.fillText('+', 192, 200);
-            ctx.fillStyle = '#4444ff'; ctx.fillText('-', 192, 80); ctx.fillText('-', 64, 200);
-            return new THREE.CanvasTexture(canvas);
+        const wallMat = new THREE.MeshLambertMaterial({ color: 0x555555 });
+        function createWall(x, z, w, d) {
+            const geo = new THREE.BoxGeometry(w, 2, d);
+            const mesh = new THREE.Mesh(geo, wallMat);
+            mesh.position.set(x, 1, z);
+            scene.add(mesh);
+            collidableWalls.push(new THREE.Box3().setFromObject(mesh));
         }
-        const wallMat = new THREE.MeshStandardMaterial({ map: createWallTexture() });
+
+        createWall(0, -20.5, 42, 1); createWall(0, 20.5, 42, 1); 
+        createWall(-20.5, 0, 1, 42); createWall(20.5, 0, 1, 42); 
+
+        createWall(-10, -10, 8, 4); createWall(10, -10, 8, 4);
+        createWall(-10, 10, 8, 4); createWall(10, 10, 8, 4);
+        createWall(0, 0, 12, 2);
+        createWall(-15, 0, 2, 8); createWall(15, 0, 2, 8);
         
-        // Peta Labirin (1: Dinding, 0: Laluan, 2: Kotak Soalan)
-        const map = [
-            [1,1,1,1,1,1,1,1,1,1,1,1,1],
-            [1,0,0,0,1,0,0,0,2,0,0,0,1],
-            [1,2,1,0,1,0,1,1,1,1,1,0,1],
-            [1,0,1,0,0,0,0,0,0,0,1,0,1],
-            [1,0,1,1,1,1,1,0,1,2,1,0,1],
-            [1,0,0,0,2,0,1,0,1,0,0,0,1],
-            [1,1,1,0,1,1,1,0,1,1,1,1,1],
-            [1,0,0,0,0,0,0,0,0,0,2,0,1],
-            [1,0,1,1,1,2,1,1,1,0,1,0,1],
-            [1,0,2,0,1,0,0,0,1,0,1,2,1],
-            [1,1,1,1,1,1,1,1,1,1,1,1,1]
+        // Objek Portal (Untuk naik tahap)
+        const portalGeo = new THREE.CylinderGeometry(2, 2, 0.5, 32);
+        const portalMat = new THREE.MeshLambertMaterial({ color: 0xaa00ff, emissive: 0x6600aa, transparent: true, opacity: 0.9 });
+        const portal = new THREE.Mesh(portalGeo, portalMat);
+        portal.position.set(0, 0.1, 0); // Di tengah peta
+        portal.visible = false;
+        scene.add(portal);
+        let portalActive = false;
+
+        // ==========================================
+        // 5. WATAK PEMAIN & SISTEM POWER-UP
+        // ==========================================
+        const playerGeo = new THREE.SphereGeometry(1, 16, 16);
+        const playerMat = new THREE.MeshLambertMaterial({ color: 0x2196F3 }); 
+        const player = new THREE.Mesh(playerGeo, playerMat);
+        scene.add(player);
+        const playerBB = new THREE.Box3();
+
+        function resetPlayer() {
+            player.position.set(0, 1, 15);
+        }
+        
+        // Status Power-Up
+        let powerGauge = 0;
+        let isPoweredUp = false;
+        let powerTimer = 0;
+        const powerupBarEl = document.getElementById('powerup-bar');
+        const powerupText = document.getElementById('powerup-text');
+        const powerupContainer = document.getElementById('powerup-bar-container');
+
+        // ==========================================
+        // 6. PENJANAAN RAWAK (SOALAN, MUSUH & CAS)
+        // ==========================================
+        const answerCubes = [];
+        const negativeCharges = [];
+        const enemies = [];
+        const cubeGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+        const chargeGeo = new THREE.SphereGeometry(0.3, 8, 8);
+        const enemyGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+        const enemyMat = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+        const chargeMat = new THREE.MeshLambertMaterial({ color: 0x00BFFF, emissive: 0x004488 });
+        const mats = [
+            new THREE.MeshLambertMaterial({ color: 0x4CAF50 }), // A
+            new THREE.MeshLambertMaterial({ color: 0x2196F3 }), // B
+            new THREE.MeshLambertMaterial({ color: 0xFF9800 })  // C
         ];
+        
+        let collectedCount = 0;
+        const chargeCounterEl = document.getElementById('charge-counter');
 
-        const walls = [];
-        const interactables = [];
-        const boxGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-        const wallGeo = new THREE.BoxGeometry(2, 2, 2);
-
-        let qIndex = 0;
-        for(let z = 0; z < map.length; z++) {
-            for(let x = 0; x < map[z].length; x++) {
-                if(map[z][x] === 1) {
-                    let w = new THREE.Mesh(wallGeo, wallMat);
-                    w.position.set(x * 2, 1, z * 2);
-                    scene.add(w);
-                    walls.push(new THREE.Box3().setFromObject(w));
-                } else if(map[z][x] === 2 && qIndex < questionsData.length) {
-                    let bMat = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xaaaa00 });
-                    let b = new THREE.Mesh(boxGeo, bMat);
-                    b.position.set(x * 2, 0.5, z * 2);
-                    scene.add(b);
-                    
-                    // Tambah data soalan pada objek
-                    b.userData = { id: qIndex, solved: false, data: questionsData[qIndex] };
-                    interactables.push(b);
-                    qIndex++;
+        for(let i=0; i<3; i++) {
+            let cube = new THREE.Mesh(cubeGeo, mats[i]);
+            scene.add(cube);
+            answerCubes.push({ mesh: cube, bb: new THREE.Box3(), index: i, htmlLabel: document.getElementById(['label-A','label-B','label-C'][i]) });
+        }
+        
+        // Cari posisi kosong dalam grid litar
+        function getValidSpots() {
+            let spots = [];
+            for(let x=-16; x<=16; x+=4) {
+                for(let z=-16; z<=16; z+=4) {
+                    let hit = false;
+                    let tempBB = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(x, 1, z), new THREE.Vector3(1.5,1.5,1.5));
+                    for(let w of collidableWalls) if(tempBB.intersectsBox(w)) { hit = true; break; }
+                    if(x === 0 && z === 0) hit = true; // Jangan tindih kawasan portal
+                    if(Math.abs(x) < 5 && Math.abs(z - 15) < 5) hit = true; // Zon selamat titik mula pemain
+                    if(!hit) spots.push({x, z});
                 }
             }
+            return spots.sort(() => Math.random() - 0.5); // Kocok array
         }
 
-        // --- 5. KAWALAN PEMAIN ---
-        const keys = { w:false, a:false, s:false, d:false };
-        let isMouseDown = false; let lastMouseX = 0;
-        
-        const ARROW = { arrowup:'w', arrowleft:'a', arrowdown:'s', arrowright:'d' };
-        const keyOf = e => { const k = e.key.toLowerCase(); return ARROW[k] || k; };
-        document.addEventListener('keydown', e => { const k = keyOf(e); if(keys.hasOwnProperty(k)) { keys[k] = true; if(ARROW[e.key.toLowerCase()]) e.preventDefault(); } });
-        document.addEventListener('keyup', e => { const k = keyOf(e); if(keys.hasOwnProperty(k)) keys[k] = false; });
-        
-        document.addEventListener('mousedown', e => { if(e.target.tagName !== 'BUTTON' && !isPaused) { isMouseDown = true; lastMouseX = e.clientX; }});
-        document.addEventListener('mousemove', e => {
-            if(isMouseDown && !isPaused) {
-                player.rotation.y -= (e.clientX - lastMouseX) * 0.005;
-                lastMouseX = e.clientX;
+        // ==========================================
+        // 7. LOGIK TAHAP & UI
+        // ==========================================
+        const hud = document.getElementById('hud');
+        const qText = document.getElementById('question-text');
+        const optTexts = [document.getElementById('txt-opt-A'), document.getElementById('txt-opt-B'), document.getElementById('txt-opt-C')];
+        const screenFeedback = document.getElementById('screen-feedback');
+        const fbTitle = document.getElementById('feedback-title');
+        const fbDesc = document.getElementById('feedback-desc');
+        const btnTeruskan = document.getElementById('btn-teruskan');
+
+        function loadStage() {
+            if(currentQIndex >= questionsData.length) {
+                triggerEpicEnding();
+                return;
             }
-        });
-        document.addEventListener('mouseup', () => isMouseDown = false);
+            const q = questionsData[currentQIndex];
+            qText.innerText = `Tahap ${currentQIndex + 1}/8: ${q.q}`;
+            optTexts[0].innerText = `A: ${q.opt[0]}`;
+            optTexts[1].innerText = `B: ${q.opt[1]}`;
+            optTexts[2].innerText = `C: ${q.opt[2]}`;
+            
+            portalActive = false;
+            portal.visible = false;
+            document.getElementById('portal-msg').style.display = 'none';
+            
+            let spots = getValidSpots();
+            
+            // Letak Jawapan Rawak
+            for(let i=0; i<3; i++) {
+                let s = spots.pop();
+                answerCubes[i].mesh.position.set(s.x, 1, s.z);
+                answerCubes[i].mesh.visible = true;
+            }
+            showLabels();
+            
+            // Tambah Musuh Mengikut Tahap (Maksimum 5 ekor)
+            let numEnemies = Math.min(1 + Math.floor(currentQIndex / 1.5), 5);
+            enemies.forEach(e => scene.remove(e.mesh));
+            enemies.length = 0;
+            const dirs = [new THREE.Vector3(1,0,0), new THREE.Vector3(-1,0,0), new THREE.Vector3(0,0,1), new THREE.Vector3(0,0,-1)];
+            for(let i=0; i<numEnemies; i++) {
+                if(spots.length === 0) break;
+                let s = spots.pop();
+                let m = new THREE.Mesh(enemyGeo, enemyMat);
+                m.position.set(s.x, 1, s.z);
+                scene.add(m);
+                enemies.push({ mesh: m, bb: new THREE.Box3(), dir: dirs[i%4] });
+            }
 
-        // Kawalan Telefon (Sentuhan)
-        let joyMove = { x: 0, z: 0 };
-        const joyZone = document.getElementById('joy-zone');
-        const joyKnob = document.getElementById('joy-knob');
-        let joyCenter = { x: 65, y: 65 };
-        
-        joyZone.addEventListener('touchstart', handleJoy, {passive: false});
-        joyZone.addEventListener('touchmove', handleJoy, {passive: false});
-        joyZone.addEventListener('touchend', () => {
-            joyKnob.style.transform = `translate(0px, 0px)`;
-            joyMove = { x: 0, z: 0 };
-        });
+            // Tabur Cas Negatif (Maksimum 10 setiap tahap)
+            negativeCharges.forEach(c => scene.remove(c.mesh));
+            negativeCharges.length = 0;
+            let chargeCount = Math.min(spots.length, 10);
+            for(let i=0; i<chargeCount; i++) {
+                let s = spots.pop();
+                let m = new THREE.Mesh(chargeGeo, chargeMat);
+                m.position.set(s.x, 1, s.z);
+                scene.add(m);
+                negativeCharges.push({ mesh: m, bb: new THREE.Box3() });
+            }
 
-        function handleJoy(e) {
-            e.preventDefault();
-            let rect = joyZone.getBoundingClientRect();
-            let touch = e.changedTouches[0];
-            let dx = (touch.clientX - rect.left) - joyCenter.x;
-            let dy = (touch.clientY - rect.top) - joyCenter.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            if(dist > 40) { dx = (dx/dist)*40; dy = (dy/dist)*40; }
-            joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
-            joyMove.x = dx / 40; joyMove.z = dy / 40;
+            resetPlayer();
         }
 
-        let touchCam = { active: false, lastX: 0 };
-        const camZone = document.getElementById('cam-zone');
-        camZone.addEventListener('touchstart', e => {
-            if(isPaused) return; e.preventDefault();
-            touchCam.active = true; touchCam.lastX = e.changedTouches[0].clientX;
-        }, {passive: false});
-        camZone.addEventListener('touchmove', e => {
-            if(isPaused || !touchCam.active) return; e.preventDefault();
-            let curX = e.changedTouches[0].clientX;
-            player.rotation.y -= (curX - touchCam.lastX) * 0.005;
-            touchCam.lastX = curX;
-        }, {passive: false});
-        camZone.addEventListener('touchend', () => touchCam.active = false);
-
-        // --- 6. LOGIK INTERAKSI & UI SOALAN ---
-        document.getElementById('btn-mula').addEventListener('click', () => {
-            document.getElementById('start-box').style.display = 'none';
-            document.getElementById('modal-overlay').style.display = 'none';
-            isPaused = false; clock.getDelta();
-        });
-
-        const btnPeriksa = document.getElementById('btn-periksa');
-        const modalOverlay = document.getElementById('modal-overlay');
-        const soalanBox = document.getElementById('soalan-box');
-        const endBox = document.getElementById('end-box');
-        
-        btnPeriksa.addEventListener('click', () => {
-            if(currentBox && !currentBox.userData.solved) {
-                bukaSoalan(currentBox);
-            }
-        });
-
-        function bukaSoalan(box) {
+        function checkAnswer(chosenIndex) {
             isPaused = true;
-            attemptsOnCurrent = 0;
-            modalOverlay.style.display = 'flex';
-            soalanBox.style.display = 'block';
-            document.getElementById('start-box').style.display = 'none';
-            endBox.style.display = 'none';
-            document.getElementById('btn-tutup-soalan').style.display = 'none';
-            document.getElementById('feedback-text').innerText = '';
+            hideLabels();
+            const q = questionsData[currentQIndex];
+            const isCorrect = (chosenIndex === q.ans);
             
-            const qData = box.userData.data;
-            document.getElementById('q-text').innerText = qData.q;
-            
-            const optContainer = document.getElementById('options-container');
-            optContainer.innerHTML = '';
-            qData.opt.forEach((teks, index) => {
-                let btn = document.createElement('button');
-                btn.className = 'btn-option';
-                btn.innerText = teks;
-                btn.onclick = () => semakJawapan(index, qData.ans, qData.fCorrect, qData.fWrong, box, btn);
-                optContainer.appendChild(btn);
+            playBeep(isCorrect);
+            screenFeedback.style.display = 'flex';
+
+            if(isCorrect) {
+                fbDesc.innerText = q.fb;
+                fbTitle.innerText = "Tepat!";
+                fbTitle.style.color = "#4CAF50";
+                btnTeruskan.innerText = "Teruskan";
+                btnTeruskan.className = "btn btn-correct";
+                btnTeruskan.onclick = () => {
+                    screenFeedback.style.display = 'none';
+                    if (currentQIndex === questionsData.length - 1) {
+                         // Tahap terakhir, terus ending
+                         currentQIndex++;
+                         loadStage(); 
+                    } else {
+                         // Munculkan Portal untuk naik tahap!
+                         portalActive = true;
+                         portal.visible = true;
+                         document.getElementById('portal-msg').style.display = 'block';
+                         answerCubes.forEach(c => c.mesh.visible = false); 
+                         isPaused = false;
+                    }
+                };
+            } else {
+                fbDesc.innerText = "Petunjuk: " + q.hint;
+                fbTitle.innerText = "Belum tepat.";
+                fbTitle.style.color = "#f44336";
+                btnTeruskan.innerText = "Cuba Lagi";
+                btnTeruskan.className = "btn btn-wrong";
+                btnTeruskan.onclick = () => {
+                    screenFeedback.style.display = 'none';
+                    resetPlayer();
+                    showLabels();
+                    isPaused = false;
+                };
+            }
+        }
+
+        function updateLabels2D() {
+            if(isPaused || portalActive) return;
+            answerCubes.forEach(cubeObj => {
+                const vec = cubeObj.mesh.position.clone();
+                vec.y += 1.5; 
+                vec.project(camera);
+                const x = (vec.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (vec.y * -0.5 + 0.5) * window.innerHeight;
+                cubeObj.htmlLabel.style.left = `${x}px`;
+                cubeObj.htmlLabel.style.top = `${y}px`;
             });
         }
+        function showLabels() { if(!portalActive) answerCubes.forEach(c => c.htmlLabel.style.display = 'block'); }
+        function hideLabels() { answerCubes.forEach(c => c.htmlLabel.style.display = 'none'); }
 
-        function semakJawapan(pilihIdx, betulIdx, fCorrect, fWrong, box, btn) {
-            const fbText = document.getElementById('feedback-text');
-            const btns = document.querySelectorAll('.btn-option');
+        // ==========================================
+        // 8. ENDING EPIK (BUNGA API)
+        // ==========================================
+        let isEnding = false;
+        let fireworks = [];
+        function triggerEpicEnding() {
+            isEnding = true;
+            isPaused = true;
+            hud.style.display = 'none';
+            chargeCounterEl.style.display = 'none';
+            powerupContainer.style.display = 'none';
+            document.getElementById('portal-msg').style.display = 'none';
+            hideLabels();
             
-            if(pilihIdx === betulIdx) {
-                // Jawapan Betul
-                playTone('correct');
-                fbText.innerHTML = `<span style="color:green;">Tepat!</span><br>${fCorrect}`;
-                btn.style.background = '#aaffaa';
-                btn.style.borderColor = '#00aa00';
-                
-                if(attemptsOnCurrent === 0) firstTryCount++;
-                box.userData.solved = true;
-                box.material.color.setHex(0x00ff00); // Hijau
-                box.material.emissive.setHex(0x00aa00);
-                
-                solvedCount++;
-                document.getElementById('score-display').innerText = solvedCount;
-                
-                btns.forEach(b => b.disabled = true);
-                document.getElementById('btn-tutup-soalan').style.display = 'block';
-            } else {
-                // Jawapan Salah
-                playTone('wrong');
-                fbText.innerHTML = `<span style="color:red;">Belum tepat.</span><br>${fWrong}`;
-                btn.style.background = '#ffaaaa';
-                attemptsOnCurrent++;
+            playEpicEnd();
+            bgmEnabled = false; document.getElementById('btn-bgm').style.display = 'none';
+            
+            // Hasilkan Bunga Api
+            for(let i=0; i<150; i++) {
+                let p = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3), new THREE.MeshBasicMaterial({color: Math.random() * 0xffffff}));
+                p.position.copy(player.position);
+                p.velocity = new THREE.Vector3((Math.random()-0.5)*30, Math.random()*20 + 10, (Math.random()-0.5)*30);
+                scene.add(p);
+                fireworks.push(p);
             }
+            
+            document.getElementById('final-charges').innerText = collectedCount;
+            setTimeout(() => {
+                document.getElementById('screen-end').style.display = 'flex';
+            }, 3000); // Papar skrin selepas animasi kamera
         }
 
-        document.getElementById('btn-tutup-soalan').addEventListener('click', () => {
-            modalOverlay.style.display = 'none';
-            soalanBox.style.display = 'none';
-            isPaused = false;
+        // ==========================================
+        // 9. KAWALAN (KEYBOARD & JOYSTICK)
+        // ==========================================
+        const keys = { w:false, a:false, s:false, d:false, arrowup:false, arrowdown:false, arrowleft:false, arrowright:false };
+        document.addEventListener('keydown', e => { let k = e.key.toLowerCase(); if(keys.hasOwnProperty(k)) keys[k] = true; });
+        document.addEventListener('keyup', e => { let k = e.key.toLowerCase(); if(keys.hasOwnProperty(k)) keys[k] = false; });
+
+        const joyZone = document.getElementById('joystick-zone');
+        const joyBase = document.getElementById('joystick-base');
+        const joyKnob = document.getElementById('joystick-knob');
+        let joyActive = false; let joyCenter = {x:0, y:0}; let joyMove = {x:0, z:0};
+
+        joyZone.addEventListener('touchstart', e => {
+            if(isPaused) return; e.preventDefault();
+            let t = e.changedTouches[0];
+            joyActive = true; joyCenter = { x: t.clientX, y: t.clientY };
+            joyBase.style.display = 'block'; joyBase.style.left = t.clientX + 'px'; joyBase.style.top = t.clientY + 'px';
+            joyKnob.style.transform = `translate(-50%, -50%)`; joyMove = {x: 0, z: 0};
+        }, {passive: false});
+
+        joyZone.addEventListener('touchmove', e => {
+            if(!joyActive || isPaused) return; e.preventDefault();
+            let t = e.changedTouches[0];
+            let dx = t.clientX - joyCenter.x; let dy = t.clientY - joyCenter.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            let maxRadius = 40;
+            if(dist > maxRadius) { dx = (dx/dist)*maxRadius; dy = (dy/dist)*maxRadius; }
+            joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+            joyMove.x = dx / maxRadius; joyMove.z = dy / maxRadius;
+        }, {passive: false});
+
+        function endJoy() { joyActive = false; joyBase.style.display = 'none'; joyMove = {x:0, z:0}; }
+        joyZone.addEventListener('touchend', endJoy); joyZone.addEventListener('touchcancel', endJoy);
+
+        document.getElementById('btn-mula').addEventListener('click', () => {
+            initAudio();
+            document.getElementById('screen-start').style.display = 'none';
+            hud.style.display = 'block';
+            chargeCounterEl.style.display = 'block';
+            powerupContainer.style.display = 'block';
             
-            if(solvedCount === questionsData.length) {
-                setTimeout(() => {
-                    isPaused = true;
-                    modalOverlay.style.display = 'flex';
-                    endBox.style.display = 'block';
-                    document.getElementById('first-try-score').innerText = firstTryCount;
-                }, 500);
-            }
+            // BGM dibiarkan OFF secara lalai, pengguna perlu tekan butang secara manual jika mahu.
+            
+            loadStage();
+            isPaused = false;
         });
 
-        // --- 7. GELUNG PERMAINAN (Game Loop) ---
+        // ==========================================
+        // 10. GELUNG PERMAINAN (GAME LOOP)
+        // ==========================================
         const clock = new THREE.Clock();
-        
+        const playerSpeed = 12;
+        const enemySpeed = 6;
+
         function animate() {
             requestAnimationFrame(animate);
-            if(isPaused) return;
-
             const dt = Math.min(clock.getDelta(), 0.1);
-            const speed = 4;
-            
-            // Animasi kotak terapung
-            interactables.forEach(b => {
-                b.rotation.y += 1 * dt;
-                b.position.y = 0.5 + Math.sin(Date.now() * 0.003 + b.position.x) * 0.1;
-            });
 
-            // Simpan posisi lama untuk perlanggaran
-            const oldPos = player.position.clone();
-            
-            // Pergerakan Keyboard & Joystick
-            let moveZ = 0; let moveX = 0;
-            if(keys.w) moveZ = -1; if(keys.s) moveZ = 1;
-            if(keys.a) moveX = -1; if(keys.d) moveX = 1;
-            
-            if(joyMove.z !== 0 || joyMove.x !== 0) {
-                moveZ = joyMove.z; moveX = joyMove.x;
+            if(isEnding) {
+                // Animasi Kamera Epik
+                camera.position.x = Math.sin(clock.getElapsedTime() * 1.5) * 20;
+                camera.position.z = Math.cos(clock.getElapsedTime() * 1.5) * 20;
+                camera.position.y = 10;
+                camera.lookAt(player.position);
+                
+                // Fizik Bunga Api
+                fireworks.forEach(f => {
+                    f.position.addScaledVector(f.velocity, dt);
+                    f.velocity.y -= 15 * dt; // graviti
+                });
+                renderer.render(scene, camera);
+                return;
             }
 
-            if(moveZ !== 0 || moveX !== 0) {
-                const dir = new THREE.Vector3(moveX, 0, moveZ).normalize();
-                dir.applyQuaternion(player.quaternion);
-                player.position.addScaledVector(dir, speed * dt);
-            }
+            if(!isPaused) {
+                // --- KAWALAN PEMAIN ---
+                let mX = 0; let mZ = 0;
+                if(keys.w || keys.arrowup) mZ = -1;
+                if(keys.s || keys.arrowdown) mZ = 1;
+                if(keys.a || keys.arrowleft) mX = -1;
+                if(keys.d || keys.arrowright) mX = 1;
+                if(joyMove.x !== 0 || joyMove.z !== 0) { mX = joyMove.x; mZ = joyMove.z; }
 
-            // Semak Perlanggaran (Collision)
-            playerBB.setFromCenterAndSize(player.position, new THREE.Vector3(0.6, 2, 0.6));
-            let collided = false;
-            for(let wBox of walls) {
-                if(playerBB.intersectsBox(wBox)) {
-                    collided = true; break;
+                if(mX !== 0 || mZ !== 0) {
+                    let len = Math.sqrt(mX*mX + mZ*mZ);
+                    mX /= len; mZ /= len;
+                    let dirX = mX * playerSpeed * dt; let dirZ = mZ * playerSpeed * dt;
+                    playerBB.setFromCenterAndSize(player.position, new THREE.Vector3(1.8, 1.8, 1.8));
+                    
+                    let oldX = player.position.x; player.position.x += dirX; playerBB.translate(new THREE.Vector3(dirX, 0, 0));
+                    let hitX = false;
+                    for(let w of collidableWalls) { if(playerBB.intersectsBox(w)) { hitX = true; break; } }
+                    if(hitX) { player.position.x = oldX; playerBB.translate(new THREE.Vector3(-dirX, 0, 0)); }
+
+                    let oldZ = player.position.z; player.position.z += dirZ; playerBB.translate(new THREE.Vector3(0, 0, dirZ));
+                    let hitZ = false;
+                    for(let w of collidableWalls) { if(playerBB.intersectsBox(w)) { hitZ = true; break; } }
+                    if(hitZ) { player.position.z = oldZ; }
                 }
-            }
-            if(collided) player.position.copy(oldPos);
 
-            // Semak jarak dengan kotak (Interaksi)
-            let nearBox = null;
-            for(let b of interactables) {
-                if(!b.userData.solved && player.position.distanceTo(b.position) < 2.2) {
-                    nearBox = b; break;
+                playerBB.setFromCenterAndSize(player.position, new THREE.Vector3(2, 2, 2));
+
+                // --- MUSUH (ARRAY PELBAGAI EKOR) ---
+                enemies.forEach(en => {
+                    let oldEnX = en.mesh.position.x; let oldEnZ = en.mesh.position.z;
+                    en.mesh.position.x += en.dir.x * enemySpeed * dt;
+                    en.mesh.position.z += en.dir.z * enemySpeed * dt;
+                    
+                    en.bb.setFromCenterAndSize(en.mesh.position, new THREE.Vector3(1.5, 1.5, 1.5));
+                    let hitWall = false;
+                    for(let w of collidableWalls) { if(en.bb.intersectsBox(w)) { hitWall = true; break; } }
+
+                    if(hitWall) {
+                        en.mesh.position.set(oldEnX, 1, oldEnZ);
+                        const dirs = [new THREE.Vector3(1,0,0), new THREE.Vector3(-1,0,0), new THREE.Vector3(0,0,1), new THREE.Vector3(0,0,-1)];
+                        en.dir = dirs[Math.floor(Math.random() * dirs.length)];
+                    }
+                    en.mesh.rotation.x += 2 * dt; en.mesh.rotation.y += 2 * dt;
+
+                    if(playerBB.intersectsBox(en.bb)) {
+                        if(isPoweredUp) {
+                            // Makan Musuh!
+                            playBlip();
+                            en.mesh.position.set(100, 100, 100); // sorok jauh
+                            setTimeout(() => { en.mesh.position.set(0, 1, -15); }, 3000); // respawn
+                        } else {
+                            playBeep(false); resetPlayer(); // Mati
+                        }
+                    }
+                });
+
+                // --- KUTIP CAS & LOGIK POWER-UP ---
+                for(let i = negativeCharges.length - 1; i >= 0; i--) {
+                    let c = negativeCharges[i];
+                    c.bb.setFromCenterAndSize(c.mesh.position, new THREE.Vector3(1.2, 1.2, 1.2));
+                    if(playerBB.intersectsBox(c.bb)) {
+                        scene.remove(c.mesh); negativeCharges.splice(i, 1);
+                        collectedCount++;
+                        chargeCounterEl.innerText = `Cas Negatif: ${collectedCount}`;
+                        playBlip();
+                        
+                        if(!isPoweredUp) {
+                             powerGauge++;
+                             let pct = (powerGauge / 5) * 100;
+                             powerupBarEl.style.width = pct + "%";
+                             if(powerGauge >= 5) {
+                                  isPoweredUp = true; powerTimer = 8.0; powerGauge = 0;
+                                  powerupBarEl.style.width = "100%"; powerupBarEl.style.background = "#ff0000";
+                                  powerupText.innerText = "SUPER CAS AKTIF!";
+                                  player.material.color.setHex(0xffff00); // Kuning bercahaya
+                                  playPowerUpSound();
+                             }
+                        }
+                    }
                 }
-            }
-            
-            if(nearBox) {
-                currentBox = nearBox;
-                btnPeriksa.style.display = 'block';
-            } else {
-                currentBox = null;
-                btnPeriksa.style.display = 'none';
+                
+                if(isPoweredUp) {
+                     powerTimer -= dt;
+                     if(powerTimer <= 0) {
+                          isPoweredUp = false;
+                          powerupBarEl.style.width = "0%"; powerupBarEl.style.background = "#ffeb3b";
+                          powerupText.innerText = "KUMPUL ELEKTRON!";
+                          player.material.color.setHex(0x2196F3); // Balik Biru
+                     } else {
+                          player.material.color.setHex(Math.random() > 0.5 ? 0xffff00 : 0xffffff); // Kelip-kelip
+                     }
+                }
+
+                // --- INTERAKSI OBJEK (JAWAPAN ATAU PORTAL) ---
+                if(!portalActive) {
+                    for(let c of answerCubes) {
+                        c.mesh.rotation.y += 1 * dt;
+                        c.bb.setFromObject(c.mesh);
+                        if(playerBB.intersectsBox(c.bb)) { checkAnswer(c.index); break; }
+                    }
+                } else {
+                    portal.rotation.y += 3 * dt;
+                    let pBB = new THREE.Box3().setFromObject(portal);
+                    pBB.expandByScalar(0.5); // besarkan sikit hitbox portal
+                    if(playerBB.intersectsBox(pBB)) {
+                        currentQIndex++;
+                        playPowerUpSound(); // Bunyi portal
+                        loadStage();
+                    }
+                }
+
+                updateLabels2D();
             }
 
             renderer.render(scene, camera);
         }
-        
-        // Responsif Tetingkap
+
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            if(!isPaused) updateLabels2D();
         });
 
         animate();
